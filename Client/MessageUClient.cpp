@@ -20,61 +20,61 @@ void MessageUClient::registerHandlder(Client* client) {
 	Types::uuid_t emptyUUID = { 0 };
 
 	Request::RequestHeader reqHeader{emptyUUID,
-									 Constants::VERSION,
-									 Request::RequestCodes::REGISTER_REQ_CODE,
-									 (Constants::USERNAME_LENGTH + Constants::PUBLIC_KEY_LENGTH)};
+					 Constants::VERSION,
+					 Request::RequestCodes::REGISTER_REQ_CODE,
+					 (Constants::USERNAME_LENGTH + Constants::PUBLIC_KEY_LENGTH)};
 
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(), 
-										 reqHeader.buffer.end());
+					     reqHeader.buffer.end());
 
 	// Generates both new public and private key for the client.
 	RSAPrivateWrapper rsapriv;
 	std::string clientPublicKey = rsapriv.getPublicKey();
 	std::string clientPrivateKey = Base64Wrapper::encode(rsapriv.getPrivateKey());
 	clientPrivateKey.erase(std::remove(clientPrivateKey.begin(), 
-									   clientPrivateKey.end(), 
-									   '\n'), 
-							clientPrivateKey.end());
+					   clientPrivateKey.end(), 
+					   '\n'), 
+			       clientPrivateKey.end());
 
 
 	Types::username_t username = { 0 };
 	std::copy(uname.begin(), 
-			  uname.end(), 
-		      username.data());
+		  uname.end(), 
+		  username.data());
 
 	Types::pubkey_t publicKey = { 0 };
 	std::copy(clientPublicKey.begin(), 
-			  clientPublicKey.end(), 
-			  publicKey.data());
+		  clientPublicKey.end(), 
+	   	  publicKey.data());
 
-	Request::registerRequestPayload regReqPL{username,
-											publicKey};
+	Request::registerRequestPayload regReqPL{username, 
+						 publicKey};
 
 
 	std::vector<uint8_t> regReqPayloadBuffer(regReqPL.buffer.begin(), 
-		                                     regReqPL.buffer.end());
+		                                 regReqPL.buffer.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										regReqPayloadBuffer, 
-										respHeaderBuffer, 
-										respPayloadBuffer);
+					    regReqPayloadBuffer, 
+					    respHeaderBuffer, 
+				            respPayloadBuffer);
 	
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(),
-			  respHeaderBuffer.end(),
-		      respHeader.buffer.data());
+		  respHeaderBuffer.end(),
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::REGISTER_SUCCESS_RESP_CODE) {
 		
 		Response::registersuccessResponsePayload  regSuccessRespPL;
 		regSuccessRespPL.buffer = { 0 };
 		std::copy(respPayloadBuffer.begin(), 
-			      respPayloadBuffer.end(), 
-			      regSuccessRespPL.buffer.data());
+			  respPayloadBuffer.end(), 
+			  regSuccessRespPL.buffer.data());
 
 		std::string hexUUID = Utils::hexify(Utils::convertUUIDToVector(regSuccessRespPL.regReqPayloadData.UUID));
 
@@ -100,19 +100,19 @@ void MessageUClient::registerHandlder(Client* client) {
 
 	// Clears the data from the memory.
 	std::fill(clientPrivateKey.begin(), 
-		      clientPrivateKey.end(), 
-		      0);
+		  clientPrivateKey.end(), 
+		  0);
 }
 
 void MessageUClient::getClientsListHandler(Client* client) {
 	
 	Request::RequestHeader reqHeader{client->getUUID(),
-									 Constants::VERSION,
-									 Request::RequestCodes::USERS_LIST_REQ_CODE,
-								     Constants::NO_PAYLOAD};
+					 Constants::VERSION,
+					 Request::RequestCodes::USERS_LIST_REQ_CODE,
+				   	 Constants::NO_PAYLOAD};
 	
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(),
-										 reqHeader.buffer.end());
+					     reqHeader.buffer.end());
 
 	std::vector<uint8_t> reqEmptyPayload = { 0 };
 
@@ -120,15 +120,15 @@ void MessageUClient::getClientsListHandler(Client* client) {
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										reqEmptyPayload, 
-										respHeaderBuffer, 
-										respPayloadBuffer);
+					    reqEmptyPayload, 
+					    respHeaderBuffer, 
+					    respPayloadBuffer);
 
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(), 
-		      respHeaderBuffer.end(), 
-		      respHeader.buffer.data());
+		  respHeaderBuffer.end(), 
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::USERS_LIST_RESP_CODE) {
 
@@ -142,24 +142,24 @@ void MessageUClient::getClientsListHandler(Client* client) {
 
 		// Iterating through the response's payload on each client received.
 		for(uint32_t clientRecordNum = 0;
-			clientRecordNum < numberOfClients;
-			clientRecordNum++) {
+		    clientRecordNum < numberOfClients;
+		    clientRecordNum++) {
 
 			clientRecordFromListPL.buffer = { 0 };
 
 			// Gets the next client record.
 			std::copy(respPayloadBuffer.begin() + (clientRecordNum * clientRecordSize) ,
-					  respPayloadBuffer.begin() + ((clientRecordNum + 1) * clientRecordSize),
-					  clientRecordFromListPL.buffer.data());
+				  respPayloadBuffer.begin() + ((clientRecordNum + 1) * clientRecordSize),
+				  clientRecordFromListPL.buffer.data());
 			
 			client->addContact(clientRecordFromListPL.clntsListPayloadData.UUID,
-								clientRecordFromListPL.clntsListPayloadData.username);
+					   clientRecordFromListPL.clntsListPayloadData.username);
 
 			std::string hexUUID = Utils::hexify(
 				Utils::convertUUIDToVector(clientRecordFromListPL.clntsListPayloadData.UUID));
 
 			std::string username(clientRecordFromListPL.clntsListPayloadData.username.begin(),
-								clientRecordFromListPL.clntsListPayloadData.username.end());
+					    clientRecordFromListPL.clntsListPayloadData.username.end());
 
 			std::cout << "UUID: " << hexUUID << " Username: " << username << std::endl;
 		}
@@ -174,11 +174,11 @@ void MessageUClient::getClientsListHandler(Client* client) {
 
 	// Clears the data from the memory.
 	std::fill(respPayloadBuffer.begin(), 
-		      respPayloadBuffer.end(), 
-		      0);
+		  respPayloadBuffer.end(), 
+		  0);
 	std::fill(respHeader.buffer.begin(), 
-		      respHeader.buffer.end(), 
-		      0);
+		  respHeader.buffer.end(), 
+		  0);
 }
 
 void MessageUClient::getPublicKeyHandler(Client* client) {
@@ -189,8 +189,8 @@ void MessageUClient::getPublicKeyHandler(Client* client) {
 
 	Types::username_t username = { 0 };
 	std::copy(uname.begin(), 
-		      uname.end(), 
-		      username.data());
+		  uname.end(), 
+		  username.data());
 	
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information.";
@@ -206,42 +206,42 @@ void MessageUClient::getPublicKeyHandler(Client* client) {
 	}
 
 	Request::RequestHeader reqHeader{client->getUUID(),
-									 Constants::VERSION,
-									 Request::RequestCodes::GET_PUBLIC_KEY_REQ_CODE,
-									 Constants::UUID_BYTES_LENGTH};
+					 Constants::VERSION,
+					 Request::RequestCodes::GET_PUBLIC_KEY_REQ_CODE,
+					 Constants::UUID_BYTES_LENGTH};
 	
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(), 
-		                                 reqHeader.buffer.end());
+		                             reqHeader.buffer.end());
 
 	Request::getPublicKeyRequestPayload pubkeyReqPL{destUUID};
 
 	std::vector<uint8_t> pubkeyReqPayloadBuffer(pubkeyReqPL.buffer.begin(), 
-												pubkeyReqPL.buffer.end());
+						    pubkeyReqPL.buffer.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										pubkeyReqPayloadBuffer, 
-										respHeaderBuffer, 
-										respPayloadBuffer);
+					    pubkeyReqPayloadBuffer, 
+					    respHeaderBuffer, 
+					    respPayloadBuffer);
 
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(), 
-		      respHeaderBuffer.end(), 
-		      respHeader.buffer.data());
+		  respHeaderBuffer.end(), 
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::PUBLIC_KEY_RESP_CODE) {
 
 		Response::publicKeyResponsePayload pubkeyRespPL;
 		pubkeyRespPL.buffer = { 0 };
 		std::copy(respPayloadBuffer.begin(), 
-			      respPayloadBuffer.end(), 
-			      pubkeyRespPL.buffer.data());
+			  respPayloadBuffer.end(), 
+			  pubkeyRespPL.buffer.data());
 		
 		std::string stringedPublicKey(pubkeyRespPL.pubkeyPayloadData.publicKey.begin(),
-							          pubkeyRespPL.pubkeyPayloadData.publicKey.end());
+					      pubkeyRespPL.pubkeyPayloadData.publicKey.end());
 
 		client->getContact(pubkeyRespPL.pubkeyPayloadData.UUID)->setPublicKey(stringedPublicKey);
 
@@ -258,12 +258,12 @@ void MessageUClient::getPublicKeyHandler(Client* client) {
 void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 	Request::RequestHeader reqHeader{client->getUUID(),
-									 Constants::VERSION,
-									 Request::RequestCodes::PULL_WAITING_MESSAGES_REQ_CODE,
-									 Constants::NO_PAYLOAD};
+					 Constants::VERSION,
+					 Request::RequestCodes::PULL_WAITING_MESSAGES_REQ_CODE,
+					 Constants::NO_PAYLOAD};
 
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(), 
-		                                 reqHeader.buffer.end());
+		                             reqHeader.buffer.end());
 
 	std::vector<uint8_t> requestEmptyPayload = { 0 };
 
@@ -271,15 +271,15 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										requestEmptyPayload, 
-										respHeaderBuffer, 
-										respPayloadBuffer);
+					    requestEmptyPayload, 
+					    respHeaderBuffer, 
+					    respPayloadBuffer);
 
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(), 
-		      respHeaderBuffer.end(), 
-		      respHeader.buffer.data());
+		  respHeaderBuffer.end(), 
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::PULL_WAITING_MESSAGES_RESP_CODE) {
 
@@ -299,13 +299,13 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 		while(messageIterator < respPayloadBuffer.end()) {
 
 			std::copy(messageIterator, 
-				      messageIterator + sizeof(Message::MessageRecordHeader),
-				      messageRecordHeader.buffer.data());
+				  messageIterator + sizeof(Message::MessageRecordHeader),
+				  messageRecordHeader.buffer.data());
 
 			messageIterator += sizeof(Message::MessageRecordHeader);
 
 			std::string messageContent(messageIterator, 
-				                       messageIterator + messageRecordHeader.msgHeaderData.contentSize);
+				                   (messageIterator + messageRecordHeader.msgHeaderData.contentSize));
 
 			messageIterator += messageRecordHeader.msgHeaderData.contentSize;
 
@@ -317,7 +317,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 			if (client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
 				username = client->getContact(messageRecordHeader.msgHeaderData.destUUID)->getUsername();
 				std::string uname(username.begin(), 
-					              username.end());
+					          username.end());
 				std::cout << "From: " << uname << std::endl;
 			} 
 			else {
@@ -348,8 +348,8 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 				// Clears the data from the memory.
 				std::fill(decryptedMessage.begin(), 
-					      decryptedMessage.end(), 
-					      0);
+					  decryptedMessage.end(), 
+					   0);
 			} 
 			else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_TEXT_MSG) {
 
@@ -367,23 +367,23 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 				std::string symmetricKey = client->getContact(contactUUID)->getSymmetricKey();
 
 				std::copy(symmetricKey.begin(), 
-					      symmetricKey.end(), 
-					      key);
+					  symmetricKey.end(), 
+					  key);
 
 				// Creates AES by the key values.
 				AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
 				
 				std::string decryptedMessage = aes.decrypt(messageContent.c_str(), 
-														   messageContent.length());
+									   messageContent.length());
 				std::cout << decryptedMessage << std::endl;
 
 				// Clear the data from the memory.
 				std::fill(symmetricKey.begin(), 
-						  symmetricKey.end(), 
-					      0);
+					  symmetricKey.end(), 
+					  0);
 				std::fill(decryptedMessage.begin(), 
-						  decryptedMessage.end(), 
-						  0);
+					  decryptedMessage.end(), 
+					  0);
 			} 
 			else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_FILE) {
 
@@ -401,14 +401,14 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 				std::string symmetricKey = client->getContact(contactUUID)->getSymmetricKey();
 
 				std::copy(symmetricKey.begin(),
-						  symmetricKey.end(),
-						  key);
+					  symmetricKey.end(),
+					  key);
 
 				// Creates AES by the key values.
 				AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
 
 				std::string decryptedFileData = aes.decrypt(messageContent.c_str(),
-															messageContent.length());
+									    messageContent.length());
 
 				// Generates random temp file name and saves the decrypred file content in it.
 				//TODO fix it to support all types of files.
@@ -421,12 +421,12 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 				// Clear the data from the memory.
 				std::fill(symmetricKey.begin(),
-						  symmetricKey.end(),
-						  0);
+					  symmetricKey.end(),
+					  0);
 
 				std::fill(decryptedFileData.begin(),
-						  decryptedFileData.end(),
-						  0);
+					  decryptedFileData.end(),
+					  0);
 			}
 			else {
 				std::cout << "Current message's type is invalid." << std::endl;
@@ -436,15 +436,15 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 			std::cout << "----- End of message -----" << std::endl << std::endl;
 
 			std::fill(messageContent.begin(), 
-					  messageContent.end(), 
-				      0);
+				  messageContent.end(), 
+				  0);
 		}
 
 		std::cout << "Done pulling waiting messages." << std::endl;
 
 		std::fill(messageRecordHeader.buffer.begin(), 
-			      messageRecordHeader.buffer.end(), 
-                  0);
+			  messageRecordHeader.buffer.end(), 
+                 	  0);
 	} 
 	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
@@ -462,8 +462,8 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 
 	Types::username_t username = { 0 };
 	std::copy(uname.begin(), 
-		      uname.end(), 
-		      username.data());
+		  uname.end(), 
+		  username.data());
 
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information.";
@@ -484,8 +484,8 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 	unsigned char key[AESWrapper::DEFAULT_KEYLENGTH];
 	std::string symmetricKey = client->getContact(destUUID)->getSymmetricKey();
 	std::copy(symmetricKey.begin(), 
-		      symmetricKey.end(), 
-		      key);
+		  symmetricKey.end(), 
+		  key);
 
 	AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH); 
 
@@ -500,47 +500,47 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 	}
 
 	std::string encryptedMessageContent = aes.encrypt(messageContent.c_str(), 
-													  messageContent.length());
+							  messageContent.length());
 
 	Request::RequestHeader reqHeader{client->getUUID(),
-								     Constants::VERSION,
-									 Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
-									 (sizeof(Message::MessageHeader) + encryptedMessageContent.length())};
+					 Constants::VERSION,
+					 Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
+					 (sizeof(Message::MessageHeader) + encryptedMessageContent.length())};
 
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(), 
-		                                 reqHeader.buffer.end());
+		                             reqHeader.buffer.end());
 
 	Message::MessageHeader msgHeader{destUUID,
-								     Message::MessageTypes::SEND_TEXT_MSG,
-									 encryptedMessageContent.length()};
+					 Message::MessageTypes::SEND_TEXT_MSG,
+					 encryptedMessageContent.length()};
 
 
 	std::vector<uint8_t> msgHeaderBuffer(msgHeader.buffer.begin(), 
-										 msgHeader.buffer.end());
+					     msgHeader.buffer.end());
 
 	std::vector<uint8_t> msgContentBuffer(encryptedMessageContent.begin(), 
-										  encryptedMessageContent.end());
+					      encryptedMessageContent.end());
 
 	std::vector<uint8_t> reqPayloadBuffer(msgHeaderBuffer.begin(), 
-										  msgHeaderBuffer.end());
+					     msgHeaderBuffer.end());
 
 	reqPayloadBuffer.insert(reqPayloadBuffer.end(), 
-							msgContentBuffer.begin(), 
-							msgContentBuffer.end());
+				msgContentBuffer.begin(), 
+				msgContentBuffer.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										reqPayloadBuffer, 
-										respHeaderBuffer, 
-										respPayloadBuffer);
+					    reqPayloadBuffer, 
+					    respHeaderBuffer, 
+					    respPayloadBuffer);
 
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(), 
-		      respHeaderBuffer.end(), 
-		      respHeader.buffer.data());
+		  respHeaderBuffer.end(), 
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		std::cout << "Text message delivered successfuly." << std::endl; 
@@ -554,20 +554,20 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 
 	// Clears the data from the memory.
 	std::fill(symmetricKey.begin(), 
-		      symmetricKey.end(), 
-		      0);
+		  symmetricKey.end(), 
+		  0);
 	std::fill(encryptedMessageContent.begin(), 
-		      encryptedMessageContent.end(), 
-		      0);
+		  encryptedMessageContent.end(), 
+		  0);
 	std::fill(msgContentBuffer.begin(), 
-		      msgContentBuffer.end(), 
-		      0);
+		  msgContentBuffer.end(), 
+		  0);
 	std::fill(reqPayloadBuffer.begin(), 
-		      reqPayloadBuffer.end(), 
-		      0);
+		  reqPayloadBuffer.end(), 
+		  0);
 	std::fill(respPayloadBuffer.begin(), 
-		      respPayloadBuffer.end(), 
-		      0);
+		  respPayloadBuffer.end(), 
+		  0);
 }
 
 void MessageUClient::askForSymmetricKeyHandler(Client* client) {
@@ -578,8 +578,8 @@ void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 
 	Types::username_t username = { 0 };
 	std::copy(uname.begin(), 
-		      uname.end(), 
-		      username.data());
+		  uname.end(), 
+		  username.data());
 
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information. ";
@@ -590,33 +590,33 @@ void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 	Types::uuid_t destUUID = client->getClientUUIDfromClientsList(username);
 
 	Request::RequestHeader reqHeader{client->getUUID(),
-									 Constants::VERSION,
-									 Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
-									 sizeof(Message::MessageHeader)};
+					 Constants::VERSION,
+					 Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
+					 sizeof(Message::MessageHeader)};
 	
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(), 
-									     reqHeader.buffer.end());
+					     reqHeader.buffer.end());
 	
 	Message::MessageHeader msgHeader{destUUID,
-									 Message::MessageTypes::ASK_SYM_KEY,
-									 Constants::NO_MESSAGE_CONTENT};
+					 Message::MessageTypes::ASK_SYM_KEY,
+					 Constants::NO_MESSAGE_CONTENT};
 
 	std::vector<uint8_t> reqPayloadBuffer(msgHeader.buffer.begin(), 
-		                                  msgHeader.buffer.end());
+		                              msgHeader.buffer.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										reqPayloadBuffer, 
-										respHeaderBuffer, 
-										respPayloadBuffer);
+					    reqPayloadBuffer, 
+					    respHeaderBuffer, 
+					    respPayloadBuffer);
 
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(), 
-		      respHeaderBuffer.end(), 
-		      respHeader.buffer.data());
+		  respHeaderBuffer.end(), 
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		std::cout << "Request for symmetric key delivered successfuly." << std::endl;
@@ -637,8 +637,8 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 
 	Types::username_t username = { 0 };
 	std::copy(uname.begin(), 
-			  uname.end(), 
-			  username.data());
+		  uname.end(), 
+		  username.data());
 
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information. ";
@@ -663,52 +663,51 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 	// Creates symmetric key buffer.
 	unsigned char key[AESWrapper::DEFAULT_KEYLENGTH];
 	// Creates new symmetric key and converts it into a string.
-	std::string symmetricKey(reinterpret_cast<const char*>(AESWrapper::GenerateKey(key, 
-														   AESWrapper::DEFAULT_KEYLENGTH)),
-							AESWrapper::DEFAULT_KEYLENGTH);
+	std::string symmetricKey(reinterpret_cast<const char*>(AESWrapper::GenerateKey(key, AESWrapper::DEFAULT_KEYLENGTH)),
+				 AESWrapper::DEFAULT_KEYLENGTH);
 
 	// Encrypts the symmetric key with the target client's public key.
 	RSAPublicWrapper rsapub(client->getContact(destUUID)->getPublicKey());
 	std::string encryptedSymKey = rsapub.encrypt(symmetricKey);
 
 	Request::RequestHeader reqHeader{client->getUUID(),
-									 Constants::VERSION,
-									 Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
-									 (sizeof(Message::MessageHeader) + encryptedSymKey.length())};
+					Constants::VERSION,
+					Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
+					(sizeof(Message::MessageHeader) + encryptedSymKey.length())};
 
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(), 
-		                                 reqHeader.buffer.end());
+		                             reqHeader.buffer.end());
 
 	Message::MessageHeader msgHeader{destUUID,
-									 Message::MessageTypes::SEND_SYM_KEY,
-									 encryptedSymKey.length()};
+					 Message::MessageTypes::SEND_SYM_KEY,
+					 encryptedSymKey.length()};
 
 	std::vector<uint8_t> msgHeaderBuffer(msgHeader.buffer.begin(), 
-		                                 msgHeader.buffer.end());
+		                             msgHeader.buffer.end());
 
 	std::vector<uint8_t> msgContentBuffer(encryptedSymKey.begin(), 
-		                                  encryptedSymKey.end());
+		                              encryptedSymKey.end());
 
 	std::vector<uint8_t> reqPayloadBuffer(msgHeaderBuffer.begin(), 
-		                                  msgHeaderBuffer.end());
+		                              msgHeaderBuffer.end());
 
 	reqPayloadBuffer.insert(reqPayloadBuffer.end(), 
-		                    msgContentBuffer.begin(), 
-		                    msgContentBuffer.end());
+		                msgContentBuffer.begin(), 
+		                msgContentBuffer.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										reqPayloadBuffer, 
-										respHeaderBuffer, 
-										respPayloadBuffer);
+					    reqPayloadBuffer, 
+					    respHeaderBuffer, 
+					    respPayloadBuffer);
 
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(), 
-			  respHeaderBuffer.end(), 
-			  respHeader.buffer.data());
+		  respHeaderBuffer.end(), 
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		client->getContact(destUUID)->setSymmetricKey(symmetricKey);
@@ -723,17 +722,17 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 
 	// Clears the data from the memory.
 	std::fill(symmetricKey.begin(), 
-			  symmetricKey.end(), 
-		      0);
+		  symmetricKey.end(), 
+		  0);
 	std::fill(encryptedSymKey.begin(), 
-		      encryptedSymKey.end(), 
-			  0);
+		  encryptedSymKey.end(), 
+		  0);
 	std::fill(msgContentBuffer.begin(), 
-			  msgContentBuffer.end(), 
-			  0);
+		  msgContentBuffer.end(), 
+		  0);
 	std::fill(reqPayloadBuffer.begin(), 
-			  reqPayloadBuffer.end(), 
-			  0);
+		  reqPayloadBuffer.end(), 
+		  0);
 }
 
 void MessageUClient::sendTextFileHandler(Client* client) {
@@ -744,8 +743,8 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 
 	Types::username_t username = { 0 };
 	std::copy(uname.begin(),
-			  uname.end(),
-			  username.data());
+		  uname.end(),
+		  username.data());
 	
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information.";
@@ -766,8 +765,8 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 	unsigned char key[AESWrapper::DEFAULT_KEYLENGTH];
 	std::string symmetricKey = client->getContact(destUUID)->getSymmetricKey();
 	std::copy(symmetricKey.begin(),
-			  symmetricKey.end(),
-			  key);
+		  symmetricKey.end(),
+		  key);
 
 	AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
 	
@@ -787,8 +786,8 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 	fileData.reserve(fileToRead.tellg());
 	fileToRead.seekg(0, std::ios::beg);
 
-	fileData.assign((std::istreambuf_iterator<char>(fileToRead)),
-					 std::istreambuf_iterator<char>());
+	fileData.assign(std::istreambuf_iterator<char>(fileToRead),
+			std::istreambuf_iterator<char>());
 
 
 	if (fileData.length() > Constants::MESSAGE_MAX_LENGTH) {
@@ -798,46 +797,46 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 	}
 
 	std::string encryptedFileData = aes.encrypt(fileData.c_str(),
-												fileData.length());
+						    fileData.length());
 
 	Request::RequestHeader reqHeader{client->getUUID(),
-									 Constants::VERSION,
-									 Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
-									 (sizeof(Message::MessageHeader) + encryptedFileData.length()) };
+					 Constants::VERSION,
+					 Request::RequestCodes::SEND_MESSAGE_REQ_CODE,
+					 (sizeof(Message::MessageHeader) + encryptedFileData.length()) };
 
 	std::vector<uint8_t> reqHeaderBuffer(reqHeader.buffer.begin(),
-										 reqHeader.buffer.end());
+					     reqHeader.buffer.end());
 
 	Message::MessageHeader msgHeader{destUUID,
-									 Message::MessageTypes::SEND_FILE,
-									 encryptedFileData.length() };
+					 Message::MessageTypes::SEND_FILE,
+					 encryptedFileData.length() };
 
 	std::vector<uint8_t> msgHeaderBuffer(msgHeader.buffer.begin(),
-										 msgHeader.buffer.end());
+					     msgHeader.buffer.end());
 
 	std::vector<uint8_t> msgContentBuffer(encryptedFileData.begin(),
-										  encryptedFileData.end());
+					      encryptedFileData.end());
 
 	std::vector<uint8_t> reqPayloadBuffer(msgHeaderBuffer.begin(),
-										  msgHeaderBuffer.end());
+					      msgHeaderBuffer.end());
 
 	reqPayloadBuffer.insert(reqPayloadBuffer.end(),
-		                    msgContentBuffer.begin(),
-		                    msgContentBuffer.end());
+		                msgContentBuffer.begin(),
+		                msgContentBuffer.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
 
 	ServerCommunication::sendAndReceive(reqHeaderBuffer,
-										reqPayloadBuffer,
-										respHeaderBuffer,
-										respPayloadBuffer);
+					    reqPayloadBuffer,
+					    respHeaderBuffer,
+					    respPayloadBuffer);
 
 	Response::ResponseHeader respHeader;
 	respHeader.buffer = { 0 };
 	std::copy(respHeaderBuffer.begin(),
-			  respHeaderBuffer.end(),
-			  respHeader.buffer.data());
+		  respHeaderBuffer.end(),
+		  respHeader.buffer.data());
 
 	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		std::cout << "File data delivered successfuly." << std::endl;
