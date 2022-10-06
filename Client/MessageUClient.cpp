@@ -871,8 +871,8 @@ void MessageUClient::start() {
 			}
 			else { 
 				if (command != UserCommands::REGISTER &&
-					command != UserCommands::INSTRUCTIONS &&
-					command != UserCommands::EXIT) {
+				    command != UserCommands::INSTRUCTIONS &&
+				    command != UserCommands::EXIT) {
 					std::cout << "Client is not registered yet. ";
 					std::cout << "Please Perform a registeration before any other command." << std::endl;
 					continue;
