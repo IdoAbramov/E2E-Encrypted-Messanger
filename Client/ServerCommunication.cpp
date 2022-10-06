@@ -3,9 +3,9 @@
 #include <boost/asio.hpp>
 
 void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHeader,
-	const std::vector<uint8_t>& requestPayload,
-	std::vector<uint8_t>& responseHeader,
-	std::vector<uint8_t>& responsePayload) {
+					 const std::vector<uint8_t>& requestPayload,
+					 std::vector<uint8_t>& responseHeader,
+					 std::vector<uint8_t>& responsePayload) {
 
 	std::string serverIP;
 	std::string serverPort;
@@ -56,8 +56,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 	Request::RequestHeader tempReqHeader;
 	tempReqHeader.buffer = { 0 };
 	std::copy(requestHeader.begin(),
-		requestHeader.end(),
-		tempReqHeader.buffer.data());
+		  requestHeader.end(),
+		  tempReqHeader.buffer.data());
 
 	if (tempReqHeader.requestHeaderData.payloadSize > 0) {
 		try {
@@ -83,8 +83,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 	Response::ResponseHeader tempRespHeader;
 	tempRespHeader.buffer = { 0 };
 	std::copy(responseHeader.begin(),
-		responseHeader.end(),
-		tempRespHeader.buffer.data());
+		  responseHeader.end(),
+		  tempRespHeader.buffer.data());
 
 	uint32_t respPayloadSize = tempRespHeader.responseHeaderData.payloadSize;
 
