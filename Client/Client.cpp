@@ -17,11 +17,8 @@ Client::Client() {
 }
 
 Client::~Client() {
-	std::map<Types::uuid_t, Contact*>::iterator contact;
-	for(contact = this->_contactsList.begin();
-	    contact != this->_contactsList.end();
-		contact++) {
-		delete (contact->second);
+	for (auto contact : this->_contactsList) {
+		delete(contact.second);
 	}
 }
 
