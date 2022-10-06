@@ -1,4 +1,3 @@
-#E2E-Encrypted-Messnger
 
 MessageU App
 
