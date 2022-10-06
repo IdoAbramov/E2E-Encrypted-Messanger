@@ -30,19 +30,16 @@ unsigned int Utils::getCommandInput() {
 }
 
 bool Utils::validateCommand(unsigned int command) {
-	if (command == UserCommands::INSTRUCTIONS ||
-		command == UserCommands::REGISTER ||
-		command == UserCommands::GET_CLIENTS_LIST ||
-		command == UserCommands::GET_PUBLIC_KEY ||
-		command == UserCommands::GET_WAITING_MESSAGES ||
-		command == UserCommands::SEND_TEXT_MESSAGE ||
-		command == UserCommands::ASK_CLIENT_SYM_KEY ||
-		command == UserCommands::SEND_MY_SYM_KEY ||
-		command == UserCommands::SEND_TEXT_FILE ||
-		command == UserCommands::EXIT) {
-		return true; 
-	}
-	return false;
+	return (command == UserCommands::INSTRUCTIONS ||
+	   	command == UserCommands::REGISTER ||
+	        command == UserCommands::GET_CLIENTS_LIST ||
+	        command == UserCommands::GET_PUBLIC_KEY ||
+	        command == UserCommands::GET_WAITING_MESSAGES ||
+	        command == UserCommands::SEND_TEXT_MESSAGE ||
+	        command == UserCommands::ASK_CLIENT_SYM_KEY ||
+	        command == UserCommands::SEND_MY_SYM_KEY ||
+	        command == UserCommands::SEND_TEXT_FILE ||
+	        command == UserCommands::EXIT);
 }
 
 std::string Utils::hexify(const std::vector<uint8_t>& vec) {
