@@ -45,34 +45,26 @@ bool Utils::validateCommand(unsigned int command) {
 	return false;
 }
 
-std::string Utils::hexify(const std::vector<uint8_t>& vec)
-{
+std::string Utils::hexify(const std::vector<uint8_t>& vec) {
     std::string str;
-    boost::algorithm::hex(vec.begin(), 
-						  vec.end(), 
-						  std::back_inserter(str));
+    boost::algorithm::hex(vec.begin(), vec.end(), std::back_inserter(str));
     return str;
 }
 
-std::vector<uint8_t> Utils::unhexify(const std::string& str)
-{
+std::vector<uint8_t> Utils::unhexify(const std::string& str) {
     std::vector<uint8_t> hex = { 0 };
-    boost::algorithm::unhex(str, 
-							std::back_inserter(hex));
+    boost::algorithm::unhex(str, std::back_inserter(hex));
     return hex;
 }
 
 std::vector<uint8_t> Utils::convertUUIDToVector(Types::uuid_t& uuid) {
-    std::vector<uint8_t>uuidVec(uuid.begin(),
-								uuid.end());
+    std::vector<uint8_t>uuidVec(uuid.begin(), uuid.end());
     return uuidVec;
 }
 
 Types::uuid_t Utils::convertVectorToUUID(std::vector<uint8_t>& uuidVec) {
-	Types::uuid_t uuid;
-    memcpy(&uuid, 
-		   &uuidVec, 
-		   Constants::UUID_BYTES_LENGTH);
+    Types::uuid_t uuid;
+    memcpy(&uuid, &uuidVec, Constants::UUID_BYTES_LENGTH);
     return uuid;
 }
 
