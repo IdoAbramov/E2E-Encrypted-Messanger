@@ -411,7 +411,6 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 									    messageContent.length());
 
 				// Generates random temp file name and saves the decrypred file content in it.
-				//TODO fix it to support all types of files.
 				std::string fileTempName = Utils::generateTempTextFileName(Constants::FILE_NAME_LEN);
 				std::ofstream out(fileTempName, std::ios::binary);
 				out << decryptedFileData;
