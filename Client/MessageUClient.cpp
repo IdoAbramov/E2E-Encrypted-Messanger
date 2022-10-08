@@ -136,47 +136,49 @@ void MessageUClient::getClientsListHandler(Client* client) {
 		  respHeaderBuffer.end(), 
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::USERS_LIST_RESP_CODE) {
-
-		Response::clientsListResponsePayload  clientRecordFromListPL;  
-
-		uint32_t clientRecordSize = Constants::UUID_BYTES_LENGTH + Constants::USERNAME_LENGTH;
-
-		uint32_t numberOfClients = respHeader.responseHeaderData.payloadSize / clientRecordSize;
-
-		std::cout << "---------- CLIENTS LIST ----------\n" << std::endl;
-
-		// Iterating through the response's payload on each client received.
-		for(uint32_t clientRecordNum = 0;
-		    clientRecordNum < numberOfClients;
-		    clientRecordNum++) {
-
-			clientRecordFromListPL.buffer = { 0 };
-
-			// Gets the next client record.
-			std::copy(respPayloadBuffer.begin() + (clientRecordNum * clientRecordSize) ,
-				  respPayloadBuffer.begin() + ((clientRecordNum + 1) * clientRecordSize),
-				  clientRecordFromListPL.buffer.data());
-			
-			client->addContact(clientRecordFromListPL.clntsListPayloadData.UUID,
-					   clientRecordFromListPL.clntsListPayloadData.username);
-
-			std::string hexUUID = Utils::hexify(
-				Utils::convertUUIDToVector(clientRecordFromListPL.clntsListPayloadData.UUID));
-
-			std::string username(clientRecordFromListPL.clntsListPayloadData.username.begin(),
-					    clientRecordFromListPL.clntsListPayloadData.username.end());
-
-			std::cout << "UUID: " << hexUUID << " Username: " << username << std::endl;
-		}
-		std::cout << "\n---------- END OF CLIENTS LIST ----------" << std::endl;
-	} 
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
-	} 
-	else { 
-		ServerCommunication::serverUndefinedResponseHandler();
+		return;
 	}
+	else if (respHeader.responseHeaderData.code != Response::ResponseCodes::USERS_LIST_RESP_CODE) {
+		ServerCommunication::serverUndefinedResponseHandler();
+		return;
+	}
+
+	Response::clientsListResponsePayload  clientRecordFromListPL;  
+
+	uint32_t clientRecordSize = Constants::UUID_BYTES_LENGTH + Constants::USERNAME_LENGTH;
+
+	uint32_t numberOfClients = respHeader.responseHeaderData.payloadSize / clientRecordSize;
+
+	std::cout << "---------- CLIENTS LIST ----------\n" << std::endl;
+
+	// Iterating through the response's payload on each client received.
+	for (uint32_t clientRecordNum = 0;
+	     clientRecordNum < numberOfClients;
+	     clientRecordNum++) {
+
+		clientRecordFromListPL.buffer = { 0 };
+
+		// Gets the next client record.
+		std::copy(respPayloadBuffer.begin() + (clientRecordNum * clientRecordSize),
+			  respPayloadBuffer.begin() + ((clientRecordNum + 1) * clientRecordSize),
+			  clientRecordFromListPL.buffer.data());
+
+		client->addContact(clientRecordFromListPL.clntsListPayloadData.UUID,
+				   clientRecordFromListPL.clntsListPayloadData.username);
+
+		std::string hexUUID = Utils::hexify(
+			Utils::convertUUIDToVector(clientRecordFromListPL.clntsListPayloadData.UUID));
+
+		std::string username(clientRecordFromListPL.clntsListPayloadData.username.begin(),
+				     clientRecordFromListPL.clntsListPayloadData.username.end());
+
+		std::cout << "UUID: " << hexUUID << " Username: " << username << std::endl;
+	}
+		
+	std::cout << "\n---------- END OF CLIENTS LIST ----------" << std::endl;
+
 
 	// Clears the data from the memory.
 	std::fill(respPayloadBuffer.begin(), 
