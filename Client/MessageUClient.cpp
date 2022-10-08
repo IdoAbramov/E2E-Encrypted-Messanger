@@ -289,184 +289,190 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 		  respHeaderBuffer.end(), 
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::PULL_WAITING_MESSAGES_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+		ServerCommunication::serverGeneralErrorHandler();
+		return;
+	}
+	else if (respHeader.responseHeaderData.code != Response::ResponseCodes::PULL_WAITING_MESSAGES_RESP_CODE) {
+		ServerCommunication::serverUndefinedResponseHandler();
+		return;
+	}
 
-		if (respPayloadBuffer.size() == 0) {
-			std::cout << "No waiting messages." << std::endl;
-			return;
+	if (respPayloadBuffer.size() == 0) {
+		std::cout << "No waiting messages." << std::endl;
+		return;
+	}
+
+	// A struct which represents message record consisting receiving UUID, message's ID, type and size. 
+	Message::MessageRecordHeader messageRecordHeader;
+	messageRecordHeader.buffer = { 0 };
+	std::vector<uint8_t>::iterator messageIterator;
+
+	messageIterator = respPayloadBuffer.begin();
+
+	// Iterating through the response's payload on each message received.
+	while(messageIterator < respPayloadBuffer.end()) {
+
+		std::copy(messageIterator, 
+			  messageIterator + sizeof(Message::MessageRecordHeader),
+			  messageRecordHeader.buffer.data());
+
+		messageIterator += sizeof(Message::MessageRecordHeader);
+
+		std::string messageContent(messageIterator, 
+			                   messageIterator + messageRecordHeader.msgHeaderData.contentSize);
+
+		messageIterator += messageRecordHeader.msgHeaderData.contentSize;
+
+		std::cout << "----- Message -----" << std::endl;
+
+		Types::username_t username;
+
+		// Checks if the sender is a known contact.
+		if (client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
+			username = client->getContact(messageRecordHeader.msgHeaderData.destUUID)->getUsername();
+			std::string uname(username.begin(), 
+					  username.end());
+			std::cout << "From: " << uname << std::endl;
+		} 
+		else {
+			std::cout << "From: Unknown user" << std::endl;
 		}
 
-		// A struct which represents message record consisting receiving UUID, message's ID, type and size. 
-		Message::MessageRecordHeader messageRecordHeader;
-		messageRecordHeader.buffer = { 0 };
-		std::vector<uint8_t>::iterator messageIterator;
+		std::cout << "Content: " << std::endl;
 
-		messageIterator = respPayloadBuffer.begin();
+		// Checks the message type and preform actions its value.
+	
+		if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::ASK_SYM_KEY) {
+			std::cout << "Request for symmetric key." << std::endl;
+		} 
 
-		// Iterating through the response's payload on each message received.
-		while(messageIterator < respPayloadBuffer.end()) {
+		else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_SYM_KEY) {
 
-			std::copy(messageIterator, 
-				  messageIterator + sizeof(Message::MessageRecordHeader),
-				  messageRecordHeader.buffer.data());
-
-			messageIterator += sizeof(Message::MessageRecordHeader);
-
-			std::string messageContent(messageIterator, 
-				                   (messageIterator + messageRecordHeader.msgHeaderData.contentSize));
-
-			messageIterator += messageRecordHeader.msgHeaderData.contentSize;
-
-			std::cout << "----- Message -----" << std::endl;
-
-			Types::username_t username;
-
-			// Checks if the sender is a known contact.
-			if (client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
-				username = client->getContact(messageRecordHeader.msgHeaderData.destUUID)->getUsername();
-				std::string uname(username.begin(), 
-					          username.end());
-				std::cout << "From: " << uname << std::endl;
-			} 
-			else {
-				std::cout << "From: Unknown user" << std::endl;
+			if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
+				std::cout << "Cannot decrypt symmetric key of unknown user." << std::endl;
+				return;
 			}
 
-			std::cout << "Content: " << std::endl;
+			Types::uuid_t contactUUID = client->getClientUUIDfromClientsList(username);
 
-			// Checks the message type and preform actions its value.
-			if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::ASK_SYM_KEY) {
-				std::cout << "Request for symmetric key." << std::endl;
+			// Decrypt the message by the current client's private key.
+			RSAPrivateWrapper rsapriv(Base64Wrapper::decode(client->getPrivateKey()));
+			std::string decryptedMessage = rsapriv.decrypt(messageContent);
+
+			// Sets the symmetric key to the sending client in the contacts list.
+			client->getContact(contactUUID)->setSymmetricKey(decryptedMessage);
+			std::cout << "Symmetric key received." << std::endl;
+
+			// Clears the data from the memory.
+			std::fill(decryptedMessage.begin(), 
+				      decryptedMessage.end(), 
+				      0);
 			} 
-			else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_SYM_KEY) {
-				if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
-					std::cout << "Cannot decrypt symmetric key of unknown user." << std::endl;
-					return;
-				}
 
-				Types::uuid_t contactUUID = client->getClientUUIDfromClientsList(username);
+		else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_TEXT_MSG) {
 
-				// Decrypt the message by the current client's private key.
-				RSAPrivateWrapper rsapriv(Base64Wrapper::decode(client->getPrivateKey()));
-				std::string decryptedMessage = rsapriv.decrypt(messageContent);
-
-				// Sets the symmetric key to the sending client in the contacts list.
-				client->getContact(contactUUID)->setSymmetricKey(decryptedMessage);
-				std::cout << "Symmetric key received." << std::endl;
-
-				// Clears the data from the memory.
-				std::fill(decryptedMessage.begin(), 
-					  decryptedMessage.end(), 
-					   0);
-			} 
-			else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_TEXT_MSG) {
-
-				if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
-					std::cout << "Cannot decrypt text message of unknown user." << std::endl;
-					return;
-				}
-
-				Types::uuid_t contactUUID = client->getClientUUIDfromClientsList(username);
-
-				// Creates symmetric key buffer.
-				unsigned char key[AESWrapper::DEFAULT_KEYLENGTH];
-
-				// Gets the sending client's symmetric key from contact list.
-				std::string symmetricKey = client->getContact(contactUUID)->getSymmetricKey();
-
-				std::copy(symmetricKey.begin(), 
-					  symmetricKey.end(), 
-					  key);
-
-				// Creates AES by the key values.
-				AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
-				
-				std::string decryptedMessage = aes.decrypt(messageContent.c_str(), 
-									   messageContent.length());
-				std::cout << decryptedMessage << std::endl;
-
-				// Clear the data from the memory.
-				std::fill(symmetricKey.begin(), 
-					  symmetricKey.end(), 
-					  0);
-				std::fill(decryptedMessage.begin(), 
-					  decryptedMessage.end(), 
-					  0);
-			} 
-			else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_FILE) {
-
-				if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
-					std::cout << "Cannot decrypt text message of unknown user." << std::endl;
-					return;
-				}
-
-				Types::uuid_t contactUUID = client->getClientUUIDfromClientsList(username);
-
-				// Creates symmetric key buffer.
-				unsigned char key[AESWrapper::DEFAULT_KEYLENGTH];
-
-				// Gets the sending client's symmetric key from contact list.
-				std::string symmetricKey = client->getContact(contactUUID)->getSymmetricKey();
-
-				std::copy(symmetricKey.begin(),
-					  symmetricKey.end(),
-					  key);
-
-				// Creates AES by the key values.
-				AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
-
-				std::string decryptedFileData = aes.decrypt(messageContent.c_str(),
-									    messageContent.length());
-
-				// Generates random temp file name and saves the decrypred file content in it.
-				std::string fileTempName = Utils::generateTempTextFileName(Constants::FILE_NAME_LEN);
-				
-				try{
-					std::ofstream out(fileTempName, std::ios::binary);
-					out << decryptedFileData;
-					out.close();
-				}
-				catch(std::exception& e){
-					std::cout << "Error while trying to write the received file into the Client's folder." << std::endl;
-					std::cout << e.what() << std::endl;
-					return;
-				}
-
-				std::cout << "A new file <" << fileTempName << "> received and saved in the current directory." << std::endl;
-
-				// Clear the data from the memory.
-				std::fill(symmetricKey.begin(),
-					  symmetricKey.end(),
-					  0);
-
-				std::fill(decryptedFileData.begin(),
-					  decryptedFileData.end(),
-					  0);
+			if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
+				std::cout << "Cannot decrypt text message of unknown user." << std::endl;
+				return;
 			}
-			else {
-				std::cout << "Current message's type is invalid." << std::endl;
+
+			Types::uuid_t contactUUID = client->getClientUUIDfromClientsList(username);
+
+			// Creates symmetric key buffer.
+			unsigned char key[AESWrapper::DEFAULT_KEYLENGTH];
+
+			// Gets the sending client's symmetric key from contact list.
+			std::string symmetricKey = client->getContact(contactUUID)->getSymmetricKey();
+
+			std::copy(symmetricKey.begin(), 
+				  symmetricKey.end(), 
+				   key);
+
+			// Creates AES by the key values.
+			AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
+				
+			std::string decryptedMessage = aes.decrypt(messageContent.c_str(), 
+								   messageContent.length());
+			std::cout << decryptedMessage << std::endl;
+
+			// Clear the data from the memory.
+			std::fill(symmetricKey.begin(), 
+				  symmetricKey.end(), 
+				  0);
+			std::fill(decryptedMessage.begin(), 
+				  decryptedMessage.end(), 
+				  0);
+		} 
+
+		else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_FILE) {
+
+			if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
+				std::cout << "Cannot decrypt text message of unknown user." << std::endl;
+				return;
+			}
+
+			Types::uuid_t contactUUID = client->getClientUUIDfromClientsList(username);
+
+			// Creates symmetric key buffer.
+			unsigned char key[AESWrapper::DEFAULT_KEYLENGTH];
+
+			// Gets the sending client's symmetric key from contact list.
+			std::string symmetricKey = client->getContact(contactUUID)->getSymmetricKey();
+
+			std::copy(symmetricKey.begin(),
+				  symmetricKey.end(),
+				  key);
+
+			// Creates AES by the key values.
+			AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
+
+			std::string decryptedFileData = aes.decrypt(messageContent.c_str(),
+								    messageContent.length());
+
+			// Generates random temp file name and saves the decrypred file content in it.
+			std::string fileTempName = Utils::generateTempTextFileName(Constants::FILE_NAME_LEN);
+
+			try {
+				std::ofstream out(fileTempName, std::ios::binary);
+				out << decryptedFileData;
+				out.close();
+			}
+			catch (std::exception& e) {
+				std::cout << "Error while trying to write the received file into the Client's folder." << std::endl;
+				std::cout << e.what() << std::endl;
 				continue;
 			}
 
-			std::cout << "----- End of message -----" << std::endl << std::endl;
+			std::cout << "A new file <" << fileTempName << "> received and saved in the current directory." << std::endl;
 
-			std::fill(messageContent.begin(), 
-				  messageContent.end(), 
+			// Clear the data from the memory.
+			std::fill(symmetricKey.begin(),
+				  symmetricKey.end(),
+				  0);
+
+			std::fill(decryptedFileData.begin(),
+				  decryptedFileData.end(),
 				  0);
 		}
+			
+		else {
+			std::cout << "Current message's type is invalid." << std::endl;
+			continue;
+		}
 
-		std::cout << "Done pulling waiting messages." << std::endl;
+		std::cout << "----- End of message -----" << std::endl << std::endl;
 
-		std::fill(messageRecordHeader.buffer.begin(), 
-			  messageRecordHeader.buffer.end(), 
-                 	  0);
-	} 
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
-		ServerCommunication::serverGeneralErrorHandler();
-	} 
-	else {
-		ServerCommunication::serverUndefinedResponseHandler();
+		std::fill(messageContent.begin(), 
+				  messageContent.end(), 
+			      0);
 	}
+
+	std::cout << "Done pulling waiting messages." << std::endl;
+
+	std::fill(messageRecordHeader.buffer.begin(), 
+		  messageRecordHeader.buffer.end(), 
+              	  0);
 }
 
 void MessageUClient::sendTextMessagesHandler(Client* client) {
