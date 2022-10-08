@@ -419,9 +419,17 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 				// Generates random temp file name and saves the decrypred file content in it.
 				std::string fileTempName = Utils::generateTempTextFileName(Constants::FILE_NAME_LEN);
-				std::ofstream out(fileTempName, std::ios::binary);
-				out << decryptedFileData;
-				out.close();
+				
+				try{
+					std::ofstream out(fileTempName, std::ios::binary);
+					out << decryptedFileData;
+					out.close();
+				}
+				catch(std::exception& e){
+					std::cout << "Error while trying to write the received file into the Client's folder." << std::endl;
+					std::cout << e.what() << std::endl;
+					return;
+				}
 
 				std::cout << "A new file <" << fileTempName << "> received and saved in the current directory." << std::endl;
 
