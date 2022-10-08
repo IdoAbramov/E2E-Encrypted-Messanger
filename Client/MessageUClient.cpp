@@ -68,42 +68,41 @@ void MessageUClient::registerHandlder(Client* client) {
 		  respHeaderBuffer.end(),
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::REGISTER_SUCCESS_RESP_CODE) {
-		
-		Response::registersuccessResponsePayload  regSuccessRespPL;
-		regSuccessRespPL.buffer = { 0 };
-		std::copy(respPayloadBuffer.begin(), 
-			  respPayloadBuffer.end(), 
-			  regSuccessRespPL.buffer.data());
-
-		std::string hexUUID = Utils::hexify(Utils::convertUUIDToVector(regSuccessRespPL.regReqPayloadData.UUID));
-		
-		try{
-			std::ofstream myInfoFile(Constants::CLIENT_INFO_FILE_PATH);
-			myInfoFile << uname << std::endl;
-			myInfoFile << hexUUID << std::endl;
-			myInfoFile << clientPrivateKey << std::endl;
-			myInfoFile.close();
-		}
-		catch(std::exception& e){
-			std::cout << "Error while trying to create Clients data file." << std::endl;
-			std::cout << e.what() << std::endl;
-			return;
-		}
-		
-		client->setUUID(regSuccessRespPL.regReqPayloadData.UUID);
-		client->setUsername(username);
-		client->setPrivateKey(clientPrivateKey);
-		client->setRegisterStatus(true);
-		
-		std::cout << uname << " registered successfuly. UUID: " << hexUUID << std::endl;
-	}
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
+		return;
 	}
-	else {
+	else if (respHeader.responseHeaderData.code != Response::ResponseCodes::REGISTER_SUCCESS_RESP_CODE) {
 		ServerCommunication::serverUndefinedResponseHandler();
+		return;
 	}
+		
+	Response::registersuccessResponsePayload  regSuccessRespPL;
+	regSuccessRespPL.buffer = { 0 };
+	std::copy(respPayloadBuffer.begin(), 
+		  respPayloadBuffer.end(), 
+		  regSuccessRespPL.buffer.data());
+
+	std::string hexUUID = Utils::hexify(Utils::convertUUIDToVector(regSuccessRespPL.regReqPayloadData.UUID));
+
+	try {
+		std::ofstream myInfoFile(Constants::CLIENT_INFO_FILE_PATH);
+		myInfoFile << uname << std::endl;
+		myInfoFile << hexUUID << std::endl;
+		myInfoFile << clientPrivateKey << std::endl;
+		myInfoFile.close();
+	}
+	catch (std::exception& e) {
+		std::cout << "Error while trying to create Clients data file." << std::endl;
+		std::cout << e.what() << std::endl;
+		return;
+	}
+
+	client->setUUID(regSuccessRespPL.regReqPayloadData.UUID);
+	client->setUsername(username);
+	client->setPrivateKey(clientPrivateKey);
+	client->setRegisterStatus(true);
+	std::cout << uname << " registered successfuly. UUID: " << hexUUID << std::endl;
 
 	// Clears the data from the memory.
 	std::fill(clientPrivateKey.begin(), 
