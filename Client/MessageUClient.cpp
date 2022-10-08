@@ -777,17 +777,23 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 		std::cout << "File could not be found, please verify its location and name, and try again." << std::endl;
 		return;
 	}
-
-	std::ifstream fileToRead(filePath, std::ios::binary);
+	
 	std::string fileData;
+	try{
+		std::ifstream fileToRead(filePath, std::ios::binary);
 
-	fileToRead.seekg(0, std::ios::end);
-	fileData.reserve(fileToRead.tellg());
-	fileToRead.seekg(0, std::ios::beg);
+		fileToRead.seekg(0, std::ios::end);
+		fileData.reserve(fileToRead.tellg());
+		fileToRead.seekg(0, std::ios::beg);
 
-	fileData.assign(std::istreambuf_iterator<char>(fileToRead),
-			std::istreambuf_iterator<char>());
-
+		fileData.assign(std::istreambuf_iterator<char>(fileToRead),
+				std::istreambuf_iterator<char>());
+	}
+	catch (std::exception& e){
+		std::cout << "Error when trying to open file to read its data." << std::endl;
+		std::cout << e.what() << std::endl;
+		return;
+	}
 
 	if (fileData.length() > Constants::MESSAGE_MAX_LENGTH) {
 		std::cout << "File's data length exceeds the maximum length.";
