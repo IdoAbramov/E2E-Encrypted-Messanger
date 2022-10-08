@@ -804,18 +804,23 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 	}
 	
 	std::string fileData;
-	try{
-		std::ifstream fileToRead(filePath, std::ios::binary);
+	std::ifstream fileToRead;
+	fileToRead.exceptions(std::ifstream::badbit | std::ifstream::failbit);
 
+	try {
+		fileToRead.open(filePath, std::ios::binary);
 		fileToRead.seekg(0, std::ios::end);
+
 		fileData.reserve(fileToRead.tellg());
 		fileToRead.seekg(0, std::ios::beg);
 
-		fileData.assign(std::istreambuf_iterator<char>(fileToRead),
-				std::istreambuf_iterator<char>());
+		fileData.assign((std::istreambuf_iterator<char>(fileToRead)),
+				 std::istreambuf_iterator<char>());
+
+		fileToRead.close();
 	}
-	catch (std::exception& e){
-		std::cout << "Error when trying to open file to read its data." << std::endl;
+	catch (std::ifstream::failure const& e) {
+		std::cout << "Error when trying to open file to read data." << std::endl;
 		std::cout << e.what() << std::endl;
 		return;
 	}
