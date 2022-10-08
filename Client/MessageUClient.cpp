@@ -647,6 +647,7 @@ void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 	}
 	else if(respHeader.responseHeaderData.code != Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		ServerCommunication::serverUndefinedResponseHandler();
+		return;
 	}
 	
 	std::cout << "Request for symmetric key delivered successfuly." << std::endl;
