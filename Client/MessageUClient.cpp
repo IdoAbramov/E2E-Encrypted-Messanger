@@ -563,15 +563,17 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 		  respHeaderBuffer.end(), 
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
-		std::cout << "Text message delivered successfuly." << std::endl; 
-	} 
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
-	} 
-	else { 
-		ServerCommunication::serverUndefinedResponseHandler();
+		return;
 	}
+	else if (respHeader.responseHeaderData.code != Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
+		ServerCommunication::serverUndefinedResponseHandler();
+		return;
+	}
+
+	std::cout << "Text message delivered successfuly." << std::endl; 
+
 
 	// Clears the data from the memory.
 	std::fill(symmetricKey.begin(), 
