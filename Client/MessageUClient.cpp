@@ -454,8 +454,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 			std::fill(decryptedFileData.begin(),
 				  decryptedFileData.end(),
 				  0);
-		}
-			
+		}	
 		else {
 			std::cout << "Current message's type is invalid." << std::endl;
 			continue;
@@ -464,8 +463,8 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 		std::cout << "----- End of message -----" << std::endl << std::endl;
 
 		std::fill(messageContent.begin(), 
-				  messageContent.end(), 
-			      0);
+		  	  messageContent.end(), 
+			  0);
 	}
 
 	std::cout << "Done pulling waiting messages." << std::endl;
