@@ -240,27 +240,27 @@ void MessageUClient::getPublicKeyHandler(Client* client) {
 		  respHeaderBuffer.end(), 
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::PUBLIC_KEY_RESP_CODE) {
-
-		Response::publicKeyResponsePayload pubkeyRespPL;
-		pubkeyRespPL.buffer = { 0 };
-		std::copy(respPayloadBuffer.begin(), 
-			  respPayloadBuffer.end(), 
-			  pubkeyRespPL.buffer.data());
-		
-		std::string stringedPublicKey(pubkeyRespPL.pubkeyPayloadData.publicKey.begin(),
-					      pubkeyRespPL.pubkeyPayloadData.publicKey.end());
-
-		client->getContact(pubkeyRespPL.pubkeyPayloadData.UUID)->setPublicKey(stringedPublicKey);
-
-		std::cout << "Public key of user \'" << uname << "\' received successfuly." << std::endl;
-	} 
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
-	} 
-	else {
-		ServerCommunication::serverUndefinedResponseHandler();
+		return;
 	}
+	else if (respHeader.responseHeaderData.code != Response::ResponseCodes::PUBLIC_KEY_RESP_CODE) {
+		ServerCommunication::serverUndefinedResponseHandler();
+		return;
+	}
+
+	Response::publicKeyResponsePayload pubkeyRespPL;
+	pubkeyRespPL.buffer = { 0 };
+	std::copy(respPayloadBuffer.begin(), 
+		  respPayloadBuffer.end(), 
+		  pubkeyRespPL.buffer.data());
+		
+	std::string stringedPublicKey(pubkeyRespPL.pubkeyPayloadData.publicKey.begin(),
+				      pubkeyRespPL.pubkeyPayloadData.publicKey.end());
+
+	client->getContact(pubkeyRespPL.pubkeyPayloadData.UUID)->setPublicKey(stringedPublicKey);
+
+	std::cout << "Public key of user \'" << uname << "\' received successfuly." << std::endl;
 }
 
 void MessageUClient::getWaitingMessagesHandler(Client* client)  {
