@@ -38,7 +38,7 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 	try {
 		boost::asio::connect(socket, resolver.resolve(serverIP, serverPort));
 	}
-	catch (std::exception& e) {
+	catch (boost::system::system_error const& e) {
 		std::cout << "Error while trying to connect to the server." << std::endl;
 		std::cout << e.what() << std::endl;
 		return;
@@ -47,7 +47,7 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 	try {
 		boost::asio::write(socket, boost::asio::buffer(requestHeader.data(), sizeof(Request::RequestHeaderData)));
 	}
-	catch (std::exception& e) {
+	catch (boost::system::system_error const& e) {
 		std::cout << "Error while trying to send a request header to the server." << std::endl;
 		std::cout << e.what() << std::endl;
 		return;
@@ -63,7 +63,7 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 		try {
 			boost::asio::write(socket, boost::asio::buffer(requestPayload.data(), requestPayload.size()));
 		}
-		catch (std::exception& e) {
+		catch (boost::system::system_error const& e) {
 			std::cout << "Error while trying to send a request payload to the server." << std::endl;
 			std::cout << e.what() << std::endl;
 			return;
@@ -74,7 +74,7 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 	try {
 		boost::asio::read(socket, boost::asio::buffer(responseHeader, sizeof(Response::ResponseHeaderData)));
 	}
-	catch (std::exception& e) {
+	catch (boost::system::system_error const& e) {
 		std::cout << "Error while trying to get a response header from the server." << std::endl;
 		std::cout << e.what() << std::endl;
 		return;
@@ -94,7 +94,7 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 		try {
 			boost::asio::read(socket, boost::asio::buffer(responsePayload, respPayloadSize));
 		}
-		catch (std::exception& e) {
+		catch (boost::system::system_error const& e) {
 			std::cout << "Error while trying to get a response payload from the server." << std::endl;
 			std::cout << e.what() << std::endl;
 			return;
