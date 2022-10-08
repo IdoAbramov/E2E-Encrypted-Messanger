@@ -390,7 +390,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 			std::copy(symmetricKey.begin(), 
 				  symmetricKey.end(), 
-				   key);
+				  key);
 
 			// Creates AES by the key values.
 			AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
