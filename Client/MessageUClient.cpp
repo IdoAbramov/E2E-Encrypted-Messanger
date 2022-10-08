@@ -85,15 +85,18 @@ void MessageUClient::registerHandlder(Client* client) {
 
 	std::string hexUUID = Utils::hexify(Utils::convertUUIDToVector(regSuccessRespPL.regReqPayloadData.UUID));
 
+	std::ofstream myInfoFile;
+	myInfoFile.exceptions(std::ifstream::badbit | std::ifstream::failbit);
+
 	try {
-		std::ofstream myInfoFile(Constants::CLIENT_INFO_FILE_PATH);
+		myInfoFile.open(Constants::CLIENT_INFO_FILE_PATH);
 		myInfoFile << uname << std::endl;
 		myInfoFile << hexUUID << std::endl;
 		myInfoFile << clientPrivateKey << std::endl;
 		myInfoFile.close();
 	}
-	catch (std::exception& e) {
-		std::cout << "Error while trying to create Clients data file." << std::endl;
+	catch (std::ofstream::failure const& e) {
+		std::cout << "Error while trying to create Client's data file." << std::endl;
 		std::cout << e.what() << std::endl;
 		return;
 	}
