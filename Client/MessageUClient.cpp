@@ -869,15 +869,20 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 		  respHeaderBuffer.end(),
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
-		std::cout << "File data delivered successfuly." << std::endl;
-	}
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
+		return;
 	}
-	else {
+	else if (respHeader.responseHeaderData.code != Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		ServerCommunication::serverUndefinedResponseHandler();
+		return;
 	}
+
+	std::cout << "File data delivered successfuly." << std::endl;
+
+	std::fill(fileData.begin(),
+			  fileData.end(),
+			  0);
 
 }
 
@@ -894,20 +899,20 @@ void MessageUClient::start() {
 		command = Utils::getCommandInput();
 
 		if (Utils::validateCommand(command)) {
-			if (client->isRegistered()) {
-				if (command == UserCommands::REGISTER) {
-					std::cout << "Client already Registered." << std::endl;
-					continue;
-				}
+			// registered client cannot preform registeration again. 
+			if (client->isRegistered() &&
+			    command == UserCommands::REGISTER) {
+				std::cout << "Client already Registered." << std::endl;
+				continue;
 			}
-			else { 
-				if (command != UserCommands::REGISTER &&
-				    command != UserCommands::INSTRUCTIONS &&
-				    command != UserCommands::EXIT) {
-					std::cout << "Client is not registered yet. ";
-					std::cout << "Please Perform a registeration before any other command." << std::endl;
-					continue;
-				}
+			// non-registered client cannot preform other commands then registeration, instructions and exit. 
+			else if (!client->isRegistered() &&
+				 command != UserCommands::REGISTER &&
+				 command != UserCommands::INSTRUCTIONS &&
+				 command != UserCommands::EXIT) {
+				std::cout << "Client is not registered yet. ";
+				std::cout << "Please Perform a registeration before any other command." << std::endl;
+				continue;
 			}
 
 			switch (command) {
