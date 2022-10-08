@@ -641,15 +641,15 @@ void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 		  respHeaderBuffer.end(), 
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
-		std::cout << "Request for symmetric key delivered successfuly." << std::endl;
-	}
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
+		return;
 	}
-	else {
+	else if(respHeader.responseHeaderData.code != Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		ServerCommunication::serverUndefinedResponseHandler();
 	}
+	
+	std::cout << "Request for symmetric key delivered successfuly." << std::endl;
 }
 
 void MessageUClient::sendSymmetricKeyHandler(Client* client) {
