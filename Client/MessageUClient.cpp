@@ -733,16 +733,17 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 		  respHeaderBuffer.end(), 
 		  respHeader.buffer.data());
 
-	if (respHeader.responseHeaderData.code == Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
-		client->getContact(destUUID)->setSymmetricKey(symmetricKey);
-		std::cout << "Sent the symmetric key message successfuly." << std::endl;
-	}
-	else if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
+	if (respHeader.responseHeaderData.code == Response::ResponseCodes::GENERAL_ERROR_RESP_CODE) {
 		ServerCommunication::serverGeneralErrorHandler();
+		return;
 	}
-	else {
+	else if(respHeader.responseHeaderData.code != Response::ResponseCodes::MESSAGE_SENT_RESP_CODE) {
 		ServerCommunication::serverUndefinedResponseHandler();
+		return;
 	}
+	
+	client->getContact(destUUID)->setSymmetricKey(symmetricKey);
+	std::cout << "Sent the symmetric key message successfuly." << std::endl;
 
 	// Clears the data from the memory.
 	std::fill(symmetricKey.begin(), 
