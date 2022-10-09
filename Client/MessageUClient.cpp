@@ -7,7 +7,7 @@ void MessageUClient::printInstructions() {
 void MessageUClient::registerHandlder(Client* client) {
 	
 	std::string uname;
-	std::cout << "Please enter your username: " << std::endl;
+	std::cout << "Please enter your username:\n";
 	std::getline(std::cin, uname);
 
 	if (uname.length() > Constants::USERNAME_LENGTH) {
