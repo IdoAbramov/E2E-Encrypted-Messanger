@@ -36,7 +36,6 @@ void MessageUClient::registerHandlder(Client* client) {
 					   '\n'), 
 			       clientPrivateKey.end());
 
-
 	Types::username_t username = { 0 };
 	std::copy(uname.begin(), 
 		  uname.end(), 
@@ -49,7 +48,6 @@ void MessageUClient::registerHandlder(Client* client) {
 
 	Request::registerRequestPayload regReqPL{username, 
 						 publicKey};
-
 
 	std::vector<uint8_t> regReqPayloadBuffer(regReqPL.buffer.begin(), 
 		                                 regReqPL.buffer.end());
