@@ -1,25 +1,25 @@
 #include "Utils.h"
 
 void Utils::showMenu() {
-	std::cout << "\n------------------- MENU -------------------" << std::endl;
-	std::cout << "MessageU client at your service.\n" << std::endl;
-	std::cout << "[100] Instructions" << std::endl;
-	std::cout << "[110] Register" << std::endl;
-	std::cout << "[120] Request for clients list" << std::endl;
-	std::cout << "[130] Request for public key" << std::endl;
-	std::cout << "[140] Request for waiting messages" << std::endl;
-	std::cout << "[150] Send a text message" << std::endl;
-	std::cout << "[151] Send a request for symmetric key" << std::endl;
-	std::cout << "[152] Send your symmetric key" << std::endl;
-	std::cout << "[160] Send a text file" << std::endl;
-	std::cout << "[0] Exit" << std::endl;
-	std::cout << "---------------------------------------------\n" << std::endl;
+	std::cout << "\n------------------- MENU -------------------\n";
+	std::cout << "MessageU client at your service.\n\n";
+	std::cout << "[100] Instructions\n";
+	std::cout << "[110] Register\n";
+	std::cout << "[120] Request for clients list\n";
+	std::cout << "[130] Request for public key\n";
+	std::cout << "[140] Request for waiting messages\n";
+	std::cout << "[150] Send a text message\n";
+	std::cout << "[151] Send a request for symmetric key\n";
+	std::cout << "[152] Send your symmetric key\n";
+	std::cout << "[160] Send a text file\n";
+	std::cout << "[0] Exit\n";
+	std::cout << "---------------------------------------------\n\n";
 }
 
 unsigned int Utils::getCommandInput() {
 	unsigned int command;
 	std::string temp;
-	std::cout << "Please enter the command number: " << std::endl;
+	std::cout << "Please enter the command number:\n";
 	std::getline(std::cin, temp);
 	std::stringstream parser(temp);
 	if(parser >> command && 
