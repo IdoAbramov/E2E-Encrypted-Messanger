@@ -26,8 +26,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 		serverPort = serverInfo.substr(pos + 1);
 	}
 	else {
-		std::cout << "Error while trying to get server info..." << std::endl;
-		std::cout << "Please insure \"server.info\" file is in the Client's folder." << std::endl;
+		std::cout << "Error while trying to get server info...\n";
+		std::cout << "Please insure \"server.info\" file is in the Client's folder.\n";
 		return;
 	}
 
@@ -39,8 +39,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 		boost::asio::connect(socket, resolver.resolve(serverIP, serverPort));
 	}
 	catch (boost::system::system_error const& e) {
-		std::cout << "Error while trying to connect to the server." << std::endl;
-		std::cout << e.what() << std::endl;
+		std::cout << "Error while trying to connect to the server.\n";
+		std::cout << e.what() << "\n";
 		return;
 	}
 
@@ -48,8 +48,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 		boost::asio::write(socket, boost::asio::buffer(requestHeader.data(), sizeof(Request::RequestHeaderData)));
 	}
 	catch (boost::system::system_error const& e) {
-		std::cout << "Error while trying to send a request header to the server." << std::endl;
-		std::cout << e.what() << std::endl;
+		std::cout << "Error while trying to send a request header to the server.\n";
+		std::cout << e.what() << "\n";
 		return;
 	}
 
@@ -64,8 +64,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 			boost::asio::write(socket, boost::asio::buffer(requestPayload.data(), requestPayload.size()));
 		}
 		catch (boost::system::system_error const& e) {
-			std::cout << "Error while trying to send a request payload to the server." << std::endl;
-			std::cout << e.what() << std::endl;
+			std::cout << "Error while trying to send a request payload to the server.\n";
+			std::cout << e.what() << "\n";
 			return;
 		}
 	}
@@ -75,8 +75,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 		boost::asio::read(socket, boost::asio::buffer(responseHeader, sizeof(Response::ResponseHeaderData)));
 	}
 	catch (boost::system::system_error const& e) {
-		std::cout << "Error while trying to get a response header from the server." << std::endl;
-		std::cout << e.what() << std::endl;
+		std::cout << "Error while trying to get a response header from the server.\n";
+		std::cout << e.what() << "\n";
 		return;
 	}
 
@@ -95,8 +95,8 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 			boost::asio::read(socket, boost::asio::buffer(responsePayload, respPayloadSize));
 		}
 		catch (boost::system::system_error const& e) {
-			std::cout << "Error while trying to get a response payload from the server." << std::endl;
-			std::cout << e.what() << std::endl;
+			std::cout << "Error while trying to get a response payload from the server.\n";
+			std::cout << e.what() << "\n";
 			return;
 		}
 	}
@@ -104,9 +104,9 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 }
 
 void ServerCommunication::serverGeneralErrorHandler() {
-	std::cout << "General error from the server. please try again." << std::endl;
+	std::cout << "General error from the server. please try again.\n";
 }
 
 void ServerCommunication::serverUndefinedResponseHandler() {
-	std::cout << "Undefined return code error occured. please try again." << std::endl;
+	std::cout << "Undefined return code error occured. please try again.\n";
 }
