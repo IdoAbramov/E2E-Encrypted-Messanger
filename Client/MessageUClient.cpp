@@ -1,7 +1,7 @@
 #include "MessageUClient.h"
 
 void MessageUClient::printInstructions() {
-	std::cout << "Welcome to MessageU - an E2E encrypted messanger." << std::endl;
+	std::cout << "Welcome to MessageU - an E2E encrypted messanger.\n";
 }
 
 void MessageUClient::registerHandlder(Client* client) {
@@ -11,9 +11,9 @@ void MessageUClient::registerHandlder(Client* client) {
 	std::getline(std::cin, uname);
 
 	if (uname.length() > Constants::USERNAME_LENGTH) {
-		std::cout << "Username length exceeds the maximum length." << std::endl;
+		std::cout << "Username length exceeds the maximum length.\n";
 		std::cout << "Please try again with a username of maximum size of ";
-		std::cout << (Constants::USERNAME_LENGTH-1) << " characters" << std::endl;
+		std::cout << (Constants::USERNAME_LENGTH-1) << " characters\n";
 		return;
 	}
 
@@ -96,8 +96,8 @@ void MessageUClient::registerHandlder(Client* client) {
 		myInfoFile.close();
 	}
 	catch (std::ofstream::failure const& e) {
-		std::cout << "Error while trying to create Client's data file." << std::endl;
-		std::cout << e.what() << std::endl;
+		std::cout << "Error while trying to create Client's data file.\n";
+		std::cout << e.what() << "\n";
 		return;
 	}
 
@@ -105,7 +105,7 @@ void MessageUClient::registerHandlder(Client* client) {
 	client->setUsername(username);
 	client->setPrivateKey(clientPrivateKey);
 	client->setRegisterStatus(true);
-	std::cout << uname << " registered successfuly. UUID: " << hexUUID << std::endl;
+	std::cout << uname << " registered successfuly. UUID: " << hexUUID << "\n";
 
 	// Clears the data from the memory.
 	std::fill(clientPrivateKey.begin(), 
@@ -154,7 +154,7 @@ void MessageUClient::getClientsListHandler(Client* client) {
 
 	uint32_t numberOfClients = respHeader.responseHeaderData.payloadSize / clientRecordSize;
 
-	std::cout << "---------- CLIENTS LIST ----------\n" << std::endl;
+	std::cout << "---------- CLIENTS LIST ----------\n\n";
 
 	// Iterating through the response's payload on each client received.
 	for (uint32_t clientRecordNum = 0;
@@ -177,10 +177,10 @@ void MessageUClient::getClientsListHandler(Client* client) {
 		std::string username(clientRecordFromListPL.clntsListPayloadData.username.begin(),
 				     clientRecordFromListPL.clntsListPayloadData.username.end());
 
-		std::cout << "UUID: " << hexUUID << " Username: " << username << std::endl;
+		std::cout << "UUID: " << hexUUID << " Username: " << username << "\n";
 	}
 		
-	std::cout << "\n---------- END OF CLIENTS LIST ----------" << std::endl;
+	std::cout << "\n---------- END OF CLIENTS LIST ----------\n";
 
 
 	// Clears the data from the memory.
@@ -195,7 +195,7 @@ void MessageUClient::getClientsListHandler(Client* client) {
 void MessageUClient::getPublicKeyHandler(Client* client) {
 
 	std::string uname;
-	std::cout << "Please enter the username which you ask for its public key: " << std::endl;
+	std::cout << "Please enter the username which you ask for its public key:\n";
 	std::getline(std::cin, uname);
 
 	Types::username_t username = { 0 };
@@ -205,14 +205,14 @@ void MessageUClient::getPublicKeyHandler(Client* client) {
 	
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information.";
-		std::cout << "Plesae check the username and try again." << std::endl;
+		std::cout << "Plesae check the username and try again.\n";
 		return;
 	}
 
 	Types::uuid_t destUUID = client->getClientUUIDfromClientsList(username);
 
 	if (client->contactHasPublicKey(destUUID)) {
-		std::cout << "You already have user \'" << uname << "\' public key.";
+		std::cout << "You already have user \'" << uname << "\' public key.\n";
 		return;
 	}
 
@@ -263,7 +263,7 @@ void MessageUClient::getPublicKeyHandler(Client* client) {
 
 	client->getContact(pubkeyRespPL.pubkeyPayloadData.UUID)->setPublicKey(stringedPublicKey);
 
-	std::cout << "Public key of user \'" << uname << "\' received successfuly." << std::endl;
+	std::cout << "Public key of user \'" << uname << "\' received successfuly.\n";
 }
 
 void MessageUClient::getWaitingMessagesHandler(Client* client)  {
@@ -302,7 +302,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 	}
 
 	if (respPayloadBuffer.size() == 0) {
-		std::cout << "No waiting messages." << std::endl;
+		std::cout << "No waiting messages.\n";
 		return;
 	}
 
@@ -327,7 +327,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 		messageIterator += messageRecordHeader.msgHeaderData.contentSize;
 
-		std::cout << "----- Message -----" << std::endl;
+		std::cout << "----- Message -----\n";
 
 		Types::username_t username;
 
@@ -336,24 +336,24 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 			username = client->getContact(messageRecordHeader.msgHeaderData.destUUID)->getUsername();
 			std::string uname(username.begin(), 
 					  username.end());
-			std::cout << "From: " << uname << std::endl;
+			std::cout << "From: " << uname << "\n";
 		} 
 		else {
-			std::cout << "From: Unknown user" << std::endl;
+			std::cout << "From: Unknown user\n";
 		}
 
-		std::cout << "Content: " << std::endl;
+		std::cout << "Content:\n";
 
 		// Checks the message type and preform actions its value.
 	
 		if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::ASK_SYM_KEY) {
-			std::cout << "Request for symmetric key." << std::endl;
+			std::cout << "Request for symmetric key.\n";
 		} 
 
 		else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_SYM_KEY) {
 
 			if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
-				std::cout << "Cannot decrypt symmetric key of unknown user." << std::endl;
+				std::cout << "Cannot decrypt symmetric key of unknown user.\n";
 				return;
 			}
 
@@ -365,7 +365,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 			// Sets the symmetric key to the sending client in the contacts list.
 			client->getContact(contactUUID)->setSymmetricKey(decryptedMessage);
-			std::cout << "Symmetric key received." << std::endl;
+			std::cout << "Symmetric key received.\n";
 
 			// Clears the data from the memory.
 			std::fill(decryptedMessage.begin(), 
@@ -376,7 +376,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 		else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_TEXT_MSG) {
 
 			if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
-				std::cout << "Cannot decrypt text message of unknown user." << std::endl;
+				std::cout << "Cannot decrypt text message of unknown user.\n";
 				return;
 			}
 
@@ -411,7 +411,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 		else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_FILE) {
 
 			if (!client->isContactExistInList(messageRecordHeader.msgHeaderData.destUUID)) {
-				std::cout << "Cannot decrypt text message of unknown user." << std::endl;
+				std::cout << "Cannot decrypt text message of unknown user.\n";
 				return;
 			}
 
@@ -445,12 +445,12 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 				fileToWrite.close();
 			}
 			catch (std::ofstream::failure const& e) {
-				std::cout << "Error while trying to write the received file into the Client's folder." << std::endl;
-				std::cout << e.what() << std::endl;
+				std::cout << "Error while trying to write the received file into the Client's folder.\n";
+				std::cout << e.what() << "\n";
 				return;
 			}
 
-			std::cout << "A new file <" << fileTempName << "> received and saved in the current directory." << std::endl;
+			std::cout << "A new file <" << fileTempName << "> received and saved in the current directory.\n";
 
 			// Clear the data from the memory.
 			std::fill(symmetricKey.begin(),
@@ -462,18 +462,18 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 				  0);
 		}	
 		else {
-			std::cout << "Current message's type is invalid." << std::endl;
+			std::cout << "Current message's type is invalid.\n";
 			continue;
 		}
 
-		std::cout << "----- End of message -----" << std::endl << std::endl;
+		std::cout << "----- End of message -----\n\n";
 
 		std::fill(messageContent.begin(), 
 		  	  messageContent.end(), 
 			  0);
 	}
 
-	std::cout << "Done pulling waiting messages." << std::endl;
+	std::cout << "Done pulling waiting messages.\n";
 
 	std::fill(messageRecordHeader.buffer.begin(), 
 		  messageRecordHeader.buffer.end(), 
@@ -483,7 +483,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 void MessageUClient::sendTextMessagesHandler(Client* client) {
 
 	std::string uname;
-	std::cout << "Please enter target username: " << std::endl;
+	std::cout << "Please enter target username:\n";
 	std::getline(std::cin, uname);
 
 	Types::username_t username = { 0 };
@@ -493,16 +493,16 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information.";
-		std::cout << "Plesae check the username and try again.";
+		std::cout << "Plesae check the username and try again.\n";
 		return;
 	}
 
 	Types::uuid_t destUUID = client->getClientUUIDfromClientsList(username);
 
 	if (!client->contactHasSymmetricKey(destUUID)) {
-		std::cout << "Error - user \'" << uname << "\' has no symmetric key yet." << std::endl;
+		std::cout << "Error - user \'" << uname << "\' has no symmetric key yet.\n";
 		std::cout << "Please ask target user for a symmetric key ";
-		std::cout << "or send a new symmetric key to the target user." << std::endl;
+		std::cout << "or send a new symmetric key to the target user.\n";
 		return;
 	}
 
@@ -516,12 +516,12 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 	AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH); 
 
 	std::string messageContent;
-	std::cout << "Please enter your message: " << std::endl;
+	std::cout << "Please enter your message:\n";
 	std::getline(std::cin, messageContent); 
 
 	if (messageContent.length() > Constants::MESSAGE_MAX_LENGTH) {
 		std::cout << "Message length exceeds the maximum length.";
-		std::cout << "please split the messages and try again.";
+		std::cout << "please split the messages and try again.\n";
 		return;
 	}
 
@@ -577,7 +577,7 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 		return;
 	}
 
-	std::cout << "Text message delivered successfuly." << std::endl; 
+	std::cout << "Text message delivered successfuly.\n"; 
 
 
 	// Clears the data from the memory.
@@ -601,7 +601,7 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 
 	std::string uname;
-	std::cout << "Please enter destination username: " << std::endl;
+	std::cout << "Please enter destination username:\n";
 	std::getline(std::cin, uname);
 
 	Types::username_t username = { 0 };
@@ -611,7 +611,7 @@ void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information. ";
-		std::cout << "Plesae check the username and try again.";
+		std::cout << "Plesae check the username and try again.\n";
 		return;
 	}
 
@@ -655,13 +655,13 @@ void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 		return;
 	}
 	
-	std::cout << "Request for symmetric key delivered successfuly." << std::endl;
+	std::cout << "Request for symmetric key delivered successfuly.\n";
 }
 
 void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 
 	std::string uname;
-	std::cout << "Please enter destination username: " << std::endl;
+	std::cout << "Please enter destination username:\n";
 	std::getline(std::cin, uname);
 
 	Types::username_t username = { 0 };
@@ -671,7 +671,7 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information. ";
-		std::cout << "Plesae check the username and try again.";
+		std::cout << "Plesae check the username and try again.\n";
 		return;
 	}
 
@@ -679,13 +679,13 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 
 	if (!client->contactHasPublicKey(destUUID)) {
 		std::cout << "Error - user \'" << uname << "\' has no public key. ";
-		std::cout << "Please ask for public key from server before.";
+		std::cout << "Please ask for public key from server before.\n";
 		return;
 	}
 
 	if (client->contactHasSymmetricKey(destUUID)) {
 		std::cout << "Error - user \'" << uname << "\' has a symmetric key already.";
-		std::cout << "You can send a text message.";
+		std::cout << "You can send a text message.\n";
 		return;
 	}
 
@@ -748,7 +748,7 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 	}
 	
 	client->getContact(destUUID)->setSymmetricKey(symmetricKey);
-	std::cout << "Sent the symmetric key message successfuly." << std::endl;
+	std::cout << "Sent the symmetric key message successfuly.\n";
 
 	// Clears the data from the memory.
 	std::fill(symmetricKey.begin(), 
@@ -768,7 +768,7 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 void MessageUClient::sendTextFileHandler(Client* client) {
 
 	std::string uname;
-	std::cout << "Please enter target username: " << std::endl;
+	std::cout << "Please enter target username:\n";
 	std::getline(std::cin, uname);
 
 	Types::username_t username = { 0 };
@@ -778,16 +778,16 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 	
 	if (!client->isClientExistInList(username)) {
 		std::cout << "Error while trying to get user \'" << uname << "\' information.";
-		std::cout << "Plesae check the username and try again.";
+		std::cout << "Plesae check the username and try again.\n";
 		return;
 	}
 
 	Types::uuid_t destUUID = client->getClientUUIDfromClientsList(username);
 
 	if (!client->contactHasSymmetricKey(destUUID)) {
-		std::cout << "Error - user \'" << uname << "\' has no symmetric key yet." << std::endl;
+		std::cout << "Error - user \'" << uname << "\' has no symmetric key yet.\n";
 		std::cout << "Please ask target user for a symmetric key ";
-		std::cout << "or send a new symmetric key to the target user." << std::endl;
+		std::cout << "or send a new symmetric key to the target user.\n";
 		return;
 	}
 
@@ -801,11 +801,11 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 	AESWrapper aes(key, AESWrapper::DEFAULT_KEYLENGTH);
 	
 	std::string filePath;
-	std::cout << "Please enter the file's full path and name: " << std::endl;
+	std::cout << "Please enter the file's full path and name:\n";
 	std::getline(std::cin, filePath);
 
 	if (!Utils::isFileExist(filePath)) {
-		std::cout << "File could not be found, please verify its location and name, and try again." << std::endl;
+		std::cout << "File could not be found, please verify its location and name, and try again.\n";
 		return;
 	}
 	
@@ -826,14 +826,14 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 		fileToRead.close();
 	}
 	catch (std::ifstream::failure const& e) {
-		std::cout << "Error when trying to open file to read data." << std::endl;
-		std::cout << e.what() << std::endl;
+		std::cout << "Error when trying to open file to read data.\n";
+		std::cout << e.what() << "\n";
 		return;
 	}
 
 	if (fileData.length() > Constants::MESSAGE_MAX_LENGTH) {
 		std::cout << "File's data length exceeds the maximum length.";
-		std::cout << "please try smaller file.";
+		std::cout << "please try smaller file.\n";
 		return;
 	}
 
@@ -888,11 +888,11 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 		return;
 	}
 
-	std::cout << "File data delivered successfuly." << std::endl;
+	std::cout << "File data delivered successfuly.\n";
 
 	std::fill(fileData.begin(),
-			  fileData.end(),
-			  0);
+		  fileData.end(),
+		  0);
 
 }
 
@@ -912,7 +912,7 @@ void MessageUClient::start() {
 			// registered client cannot preform registeration again. 
 			if (client->isRegistered() &&
 			    command == UserCommands::REGISTER) {
-				std::cout << "Client already Registered." << std::endl;
+				std::cout << "Client already Registered.\n";
 				continue;
 			}
 			// non-registered client cannot preform other commands then registeration, instructions and exit. 
@@ -920,8 +920,8 @@ void MessageUClient::start() {
 				 command != UserCommands::REGISTER &&
 				 command != UserCommands::INSTRUCTIONS &&
 				 command != UserCommands::EXIT) {
-				std::cout << "Client is not registered." << std::endl;
-				std::cout << "Please Perform a registeration to perform the selected command." << std::endl;
+				std::cout << "Client is not registered.\n";
+				std::cout << "Please Perform a registeration to perform the selected command.\n";
 				continue;
 			}
 
@@ -964,17 +964,17 @@ void MessageUClient::start() {
 				break;
 
 			case UserCommands::EXIT:
-				std::cout << "Exiting program..." << std::endl;
+				std::cout << "Exiting program...\n";
 				run = false;
 				break;
 
 			default:
-				std::cout << "undefined command number, please try again." << std::endl;
+				std::cout << "undefined command number, please try again.\n";
 				break;
 			}
 		}
 		else {
-			std::cout << "Invalid command, please try again !" << std::endl;
+			std::cout << "Invalid command, please try again!\n";
 		}
 	}
 	delete client;
