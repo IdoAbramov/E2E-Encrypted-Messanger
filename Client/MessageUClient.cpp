@@ -88,9 +88,9 @@ void MessageUClient::registerHandlder(Client* client) {
 
 	try {
 		myInfoFile.open(Constants::CLIENT_INFO_FILE_PATH);
-		myInfoFile << uname << std::endl;
-		myInfoFile << hexUUID << std::endl;
-		myInfoFile << clientPrivateKey << std::endl;
+		myInfoFile << uname << "\n";
+		myInfoFile << hexUUID << "\n";
+		myInfoFile << clientPrivateKey << "\n";
 		myInfoFile.close();
 	}
 	catch (std::ofstream::failure const& e) {
@@ -395,7 +395,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 				
 			std::string decryptedMessage = aes.decrypt(messageContent.c_str(), 
 								   messageContent.length());
-			std::cout << decryptedMessage << std::endl;
+			std::cout << decryptedMessage << "\n";
 
 			// Clear the data from the memory.
 			std::fill(symmetricKey.begin(), 
