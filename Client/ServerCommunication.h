@@ -22,9 +22,9 @@ namespace ServerCommunication {
 	* @param[out] responsePayload - contains the received response payload from the server as a stream of bytes.
 	*/
 	void sendAndReceive(const std::vector<uint8_t>& requestHeader,
-						const std::vector<uint8_t>& requestPayload,
-						std::vector<uint8_t>& responseHeader,
-						std::vector<uint8_t>& responsePayload);
+			    const std::vector<uint8_t>& requestPayload,
+		    	    std::vector<uint8_t>& responseHeader,
+			    std::vector<uint8_t>& responsePayload);
 
 	/*
 	* Handles response code of server general error.
