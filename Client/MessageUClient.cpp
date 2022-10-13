@@ -169,8 +169,7 @@ void MessageUClient::getClientsListHandler(Client* client) {
 		client->addContact(clientRecordFromListPL.clntsListPayloadData.UUID,
 				   clientRecordFromListPL.clntsListPayloadData.username);
 
-		std::string hexUUID = Utils::hexify(
-			Utils::convertUUIDToVector(clientRecordFromListPL.clntsListPayloadData.UUID));
+		std::string hexUUID = Utils::hexify(Utils::convertUUIDToVector(clientRecordFromListPL.clntsListPayloadData.UUID));
 
 		std::string username(clientRecordFromListPL.clntsListPayloadData.username.begin(),
 				     clientRecordFromListPL.clntsListPayloadData.username.end());
