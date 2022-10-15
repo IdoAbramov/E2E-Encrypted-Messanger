@@ -23,9 +23,6 @@
 */
 namespace MessageUClient
 {
-	// ---------- List of Handlers ---------- //
-	//	  Each command has its own handler.   //
-
 	/*
 	* function which prints instructions for using the program.
 	*/
