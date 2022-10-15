@@ -79,15 +79,15 @@ namespace MessageUClient
 	* Each message decryption and action depends on its type. (check "Messages.h" for messages' types):
 	* 
 	* ASK_SYM_KEY - ask symmetric key - the sending client requests the receiving client for a symmetric key.
-	*									no decryption is needed (no payload, the message type informs it)
+	* no decryption is needed (no payload, the message type informs it)
 	* 
 	* SEND_SYM_KEY - send symmetric key - the sending client sends a new generated symmetric key.
-	*									  the symmetric key encrypted by the receiving client's public key.
-	*									  decryption is done by the private key of the receiving client (current client).
+	* the symmetric key encrypted by the receiving client's public key.
+	* decryption is done by the private key of the receiving client (current client).
 	* 
 	* SEND_TEXT_MSG - send a text message - the sending client sends a text message to the target client (current client)
-	*										the text message encrypted by the symmetric key which both sender and receiver use.
-	*										decryption is done by the same symmetric key.
+	* the text message encrypted by the symmetric key which both sender and receiver use.
+	* decryption is done by the same symmetric key.
 	* 
 	* @param client - the current client.
 	*/
