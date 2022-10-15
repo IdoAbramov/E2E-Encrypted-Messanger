@@ -1,6 +1,6 @@
 
-MessageU App
-
+**MessageU App
+**
 Stateless Server-Client E2E encrypted messanger.
 
 Client - C++ with Boost and CryptoPP libraries.
