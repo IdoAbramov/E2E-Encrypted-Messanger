@@ -14,7 +14,7 @@
 */
 namespace Message {
 
-#pragma pack(push, 1) // avoiding padding of the data, making sure the struct data saved in a raw in the memory.
+#pragma pack(push, 1) // avoiding padding of the data, making sure the struct data saved as sequence in the memory.
 
 	/*
 	* Each message object sent to the server contains :
