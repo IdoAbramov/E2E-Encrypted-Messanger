@@ -13,7 +13,7 @@
 */
 namespace Request {
 
-#pragma pack(push,1) // avoiding padding of the data, making sure the struct data saved in a raw in the memory.
+#pragma pack(push,1) // avoiding padding of the data, making sure the struct data saved in as sequence in the memory.
 
 	/*
 	* Request header struct.
