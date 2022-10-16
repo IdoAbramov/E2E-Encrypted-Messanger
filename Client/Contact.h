@@ -28,7 +28,7 @@ public:
 	* Constructors and a destructor.
 	*/
 	Contact();
-	Contact(Types::username_t& username);
+	Contact(const Types::username_t& username);
 	virtual ~Contact();
 
 	/*
