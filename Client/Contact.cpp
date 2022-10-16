@@ -6,7 +6,7 @@ Contact::Contact() {
 	this->_symmetricKey = "";
 }
 
-Contact::Contact(Types::username_t& username) {
+Contact::Contact(const Types::username_t& username) {
 	this->_username = username;
 }
 
