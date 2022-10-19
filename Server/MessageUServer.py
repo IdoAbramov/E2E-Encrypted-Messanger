@@ -5,12 +5,14 @@ from Definitions import *
 from ClientHandler import *
 
 def startReceive():
+    
+    clientsHandler = ClientsHandler()
+    
     # Infinate loop taking accepts and creates each acception of client connection - a thread of clientRequestHandler
     while True:
         try:
             clientSocket, address = server.accept()
             print(address)
-            clientsHandler = ClientsHandler()
             clientThread = Thread(target=clientsHandler.clientRequestHandler, args=(clientSocket,))
             clientThread.start()
         except socket.error:
