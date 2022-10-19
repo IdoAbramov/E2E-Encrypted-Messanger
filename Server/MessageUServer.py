@@ -8,7 +8,8 @@ def startReceive():
     
     clientsHandler = ClientsHandler()
     
-    # Infinate loop taking accepts and creates each acception of client connection - a thread of clientRequestHandler
+    # Starts to receive connections from clients. 
+    # Each connection creates its own thread and routes to the appropriate handler.
     while True:
         try:
             clientSocket, address = server.accept()
