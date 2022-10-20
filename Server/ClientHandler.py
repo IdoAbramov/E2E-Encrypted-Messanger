@@ -53,8 +53,17 @@ class ClientsHandler:
         version = VERSION
         responseCode = ResponseCodes.GENERAL_ERROR_RESP
         payloadSize = 0
-        responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
-        clientSocket.sendall(responseHeader)
+        
+        try:
+            responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
+        except struct.error:
+            print("Unable to pack data.")
+            self.returnGeneralError(clientSocket)
+        
+        try:
+            clientSocket.sendall(responseHeader)
+        except:
+            print("Error while trying to send response's header to the client.")
 
     # ----- Server handlers. each request has its handler. ----- #
     def registerRequestHandler(self, clientSocket, payloadSize):
@@ -76,7 +85,11 @@ class ClientsHandler:
             return
 
         # Unpack the payload into username and public key.
-        username, publicKey = struct.unpack(f'<{USERNAME_LEN}s{PUBLIC_KEY_LEN}s', registerRequestPayloadBuffer)
+        try:
+            username, publicKey = struct.unpack(f'<{USERNAME_LEN}s{PUBLIC_KEY_LEN}s', registerRequestPayloadBuffer)
+        except struct.error:
+            print("Unable to unpack data.")
+            self.returnGeneralError(clientSocket)
 
         # Checks if the username is already exists in the server clients list.
         if self.isUsernameExistsAlready(username):
@@ -89,7 +102,11 @@ class ClientsHandler:
         payloadSize = UUID_LEN
 
         # Pack the data into one stream of bytes and send it to the client.
-        responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
+        try:
+            responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
+        except struct.error:
+            print("Unable to pack data.")
+            self.returnGeneralError(clientSocket)
 
         try:
             clientSocket.sendall(responseHeader)
@@ -130,8 +147,12 @@ class ClientsHandler:
         payloadSize = len(self.clientsList) * clientRecordLen
 
         # Pack the data into one stream of bytes and send it to the client.
-        responseHeader = struct.pack("<BHL", version, responseCode, payloadSize)
-
+        try:
+            responseHeader = struct.pack("<BHL", version, responseCode, payloadSize)
+        except struct.error:
+            print("Unable to unpack data.")
+            self.returnGeneralError(clientSocket)
+        
         try:
             clientSocket.sendall(responseHeader)
         except:
@@ -142,7 +163,11 @@ class ClientsHandler:
         for clientUUID in self.clientsList:
             clientUsername = self.getClientUsernameByUUID(clientUUID)
             clientUUIDBytes = clientUUID.bytes
-            clientsListToSend += struct.pack(f'<{UUID_LEN}s{USERNAME_LEN}s',clientUUIDBytes , clientUsername)
+            try:
+                clientsListToSend += struct.pack(f'<{UUID_LEN}s{USERNAME_LEN}s',clientUUIDBytes , clientUsername)
+            except struct.error:
+                print("Unable to pack data.")
+                self.returnGeneralError(clientSocket)
 
         # Send the whole list bytes to the requesting client as the response payload.
         try:
@@ -174,8 +199,12 @@ class ClientsHandler:
             return
 
         # Unpacks the received payload into requested client's public key.
-        destUUID, = struct.unpack(f'<{UUID_LEN}s', getPubkeyRequestPayloadBuffer)
-
+        try:
+            destUUID, = struct.unpack(f'<{UUID_LEN}s', getPubkeyRequestPayloadBuffer)
+        except struct.error:
+            print("Unable to unpack data.")
+            self.returnGeneralError(clientSocket)
+        
         # Gets the public key of the requested client from the server clients list.
         destClient = self.clientsList.get(UUID(bytes=destUUID))
         destPubkey = destClient.getPublicKey()
@@ -184,7 +213,13 @@ class ClientsHandler:
         version = VERSION
         responseCode = ResponseCodes.GET_PUBLIC_KEY_RESP
         payloadSize = UUID_LEN + PUBLIC_KEY_LEN
-        responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
+        
+        try:
+            responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
+        except struct.error:
+            print("Unable to pack data.")
+            self.returnGeneralError(clientSocket)
+            
         try:
             clientSocket.sendall(responseHeader)
         except:
@@ -209,9 +244,13 @@ class ClientsHandler:
 
         # Unpacks the message and split it to header and content.
         # Header contains target client's UUID, message type and its content size.
-        (destUUID, messageType, contentSize), messageContent = struct.unpack(f'<{UUID_LEN}sBL',\
-                                            messageBuffer[0:messageHeaderSize]),\
-                                             messageBuffer[messageHeaderSize:]
+        try:
+            (destUUID, messageType, contentSize), messageContent = struct.unpack(f'<{UUID_LEN}sBL',\
+                                                                                messageBuffer[0:messageHeaderSize]),\
+                                                                                messageBuffer[messageHeaderSize:]
+        except struct.error:
+            print("Unable to pack data.")
+            self.returnGeneralError(clientSocket)
 
         # Checks if the excepted payload of the request meets the actual size.
         if payloadSize < (UUID_LEN + MESSAGE_TYPE_LEN + MESSAGE_CONTENT_LEN):
@@ -243,14 +282,24 @@ class ClientsHandler:
         payloadSize = UUID_LEN + MESSAGE_ID_LEN
 
         # Packs the response's header into stream of bytes and send it to the requesting client.
-        responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
+        try:
+            responseHeader = struct.pack('<BHL', version, responseCode, payloadSize)
+        except struct.error:
+           print("Unable to pack data.")
+           self.returnGeneralError(clientSocket)
+
         try:
             clientSocket.sendall(responseHeader)
         except:
             print("Error while trying to send response's header to the client.")
 
         # Packs the response's payload into stream of bytes and send it to the requesting client.
-        responsePayload = struct.pack(f'<{UUID_LEN}sL', destUUID, messageID)
+        try:
+           responsePayload = struct.pack(f'<{UUID_LEN}sL', destUUID, messageID)
+        except struct.error:
+            print("Unable to pack data.")
+            self.returnGeneralError(clientSocket)
+
         try:
             clientSocket.sendall(responsePayload)
         except:
@@ -276,15 +325,24 @@ class ClientsHandler:
             if self.messages[id].getDestUUID() == destUUID:
 
                 # Packs the header of the message.
-                messageListToSend += struct.pack(f'<{UUID_LEN}sLBL',\
-                                     self.messages[id].getSrcUUID(),\
-                                     self.messages[id].getMessageID(), \
-                                     self.messages[id].getMessageType(), \
-                                     self.messages[id].getMessageSize())
+                try:
+                    messageListToSend += struct.pack(f'<{UUID_LEN}sLBL',\
+                                         self.messages[id].getSrcUUID(),\
+                                         self.messages[id].getMessageID(), \
+                                         self.messages[id].getMessageType(), \
+                                         self.messages[id].getMessageSize())
+                 except struct.error:
+                     print("Unable to pack data.")
+                     self.returnGeneralError(clientSocket)
+
 
                 # Packs the content of the message.
-                messageListToSend += struct.pack(f'<{self.messages[id].getMessageSize()}s',\
-                                                 self.messages[id].getMessageContent())
+                try:
+                    messageListToSend += struct.pack(f'<{self.messages[id].getMessageSize()}s',\
+                                                     self.messages[id].getMessageContent())
+                 except struct.error:
+                    print("Unable to pack data.")
+                    self.returnGeneralError(clientSocket)
 
                 # Sums the response payload size with the current message header and content size.
                 responsePayloadSize += messageHeaderSize + self.messages[id].getMessageSize()
@@ -299,7 +357,12 @@ class ClientsHandler:
         version = VERSION
         responseCode = ResponseCodes.PULL_WAITING_MESSAGES_RESP
         # Pack the response's header into stream of bytes and sending it to the requesting client.
-        responseHeader = struct.pack("<BHL", version, responseCode, responsePayloadSize)
+        try:
+            responseHeader = struct.pack("<BHL", version, responseCode, responsePayloadSize)
+        except struct.error:
+            print("Unable to pack data.")
+            self.returnGeneralError(clientSocket)
+
         try:
            clientSocket.sendall(responseHeader)
         except:
@@ -336,7 +399,6 @@ class ClientsHandler:
         except struct.error:
             print("Unable to unpack data.")
             self.returnGeneralError(clientSocket)
-            return
  
         # Refers to the right handler for the client's request
         if code == RequestCodes.REGISTER_REQ:
