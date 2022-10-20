@@ -314,46 +314,48 @@ class ClientsHandler:
     # Main handler of clients requests.
     # Roots the requests to the correct handler by the received request code.
     def clientRequestHandler(self, clientSocket):
-            try:
-                # Receives a client request's header.
-                requestHeaderBuffer = clientSocket.recv(REQUEST_HEADER_LEN)
+        try:
+            # Receives a client request's header.
+            requestHeaderBuffer = clientSocket.recv(REQUEST_HEADER_LEN)
 
-            except:
-                print("Error while trying to get request's header from the client.")
-                self.returnGeneralError(clientSocket)
-                clientSocket.close()
+        except:
+            print("Error while trying to get request's header from the client.")
+            self.returnGeneralError(clientSocket)
+            clientSocket.close()
 
-            # Validating the request's header length meets with the excepted length.
-            if len(requestHeaderBuffer) != REQUEST_HEADER_LEN:
-                self.returnGeneralError(clientSocket)
-                clientSocket.close()
-                return
+        # Validating the request's header length meets with the excepted length.
+        if len(requestHeaderBuffer) != REQUEST_HEADER_LEN:
+            self.returnGeneralError(clientSocket)
+            clientSocket.close()
+            return
 
-            # Unpacks the request's header into the excepted values.
-            try:
-                uuid, version, code, payloadSize = struct.unpack(f'<{UUID_LEN}sBHL', requestHeaderBuffer)
+        # Unpacks the request's header into the excepted values.
+        try:
+            uuid, version, code, payloadSize = struct.unpack(f'<{UUID_LEN}sBHL', requestHeaderBuffer)
                     
-            except struct.error:
-                print("Unable to unpack data.")
-                self.returnGeneralError(clientSocket)
-                return
+        except struct.error:
+            print("Unable to unpack data.")
+            self.returnGeneralError(clientSocket)
+            return
  
-            # Refers to the right handler for the client's request
-            if code == RequestCodes.REGISTER_REQ:
-                 self.registerRequestHandler(clientSocket, payloadSize)
+        # Refers to the right handler for the client's request
+        if code == RequestCodes.REGISTER_REQ:
+             self.registerRequestHandler(clientSocket, payloadSize)
 
-            elif code == RequestCodes.CLIENTS_LIST_REQ:
-                self.clientsListRequestHandler(clientSocket, uuid)
+        elif code == RequestCodes.CLIENTS_LIST_REQ:
+            self.clientsListRequestHandler(clientSocket, uuid)
 
-            elif code == RequestCodes.GET_PUBLIC_KEY_REQ:
-                self.getPublicKeyRequest(clientSocket, payloadSize, uuid)
+        elif code == RequestCodes.GET_PUBLIC_KEY_REQ:
+            self.getPublicKeyRequest(clientSocket, payloadSize, uuid)
 
-            elif code == RequestCodes.SEND_MESSAGE_REQ:
-                self.sendMessageRequestHandler(clientSocket, payloadSize, uuid)
+        elif code == RequestCodes.SEND_MESSAGE_REQ:
+            self.sendMessageRequestHandler(clientSocket, payloadSize, uuid)
 
-            elif code == RequestCodes.PULL_WAITING_MESSAGES_REQ:
-                self.getWaitingMessages(clientSocket, uuid, uuid)
+        elif code == RequestCodes.PULL_WAITING_MESSAGES_REQ:
+            self.getWaitingMessages(clientSocket, uuid, uuid)
 
-            # If the client sent an unknown request code, return general error from the server.
-            else:
-                self.returnGeneralError(clientSocket)
+        # If the client sent an unknown request code, return general error from the server.
+        else:
+             self.returnGeneralError(clientSocket)
+            
+       clientSocket.close()
