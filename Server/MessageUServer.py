@@ -27,7 +27,8 @@ if __name__ == '__main__':
 
     # Checks if the files of server port info exists.
     if not os.path.isfile(PORT_INFO_FILE_PATH):
-        raise IOError("The port info file couldn't be found. check if exist and retry.")
+        print("The port info file couldn't be found. check if exist and retry.")
+        return
 
     # Open the server port info for reading.
     try:
@@ -35,22 +36,25 @@ if __name__ == '__main__':
         fileConent = portInfoFile.read().split()
     except:
         print("Server's port file cannot open. please check the file and retry.")
-        exit()
+        return
 
     # Checks if the file contains any data.
     if len(fileConent) == 0:
-        raise  ValueError("The file is empty. check its content and retry.")
+        print("The file is empty. check its content and retry.")
+        return
 
     # Checks if the file content contains any other data except of the port.
     if len(fileConent) > 1:
-        raise  ValueError("The file contains more than one argument. check its content and retry.")
+        print("The file contains more than one argument. check its content and retry.")
+        return
 
     # Gets the port from the file content.
     serverPort = int(fileConent[0])
 
     # Validate the port number is a valid one.
     if not (serverPort > 0 and serverPort < MAX_PORT_VALUE):
-        raise ValueError("The port value is invalid. please check if valid and try again.")
+        print("The port value is invalid. please check if valid and try again.")
+        return
 
     portInfoFile.close()
 
