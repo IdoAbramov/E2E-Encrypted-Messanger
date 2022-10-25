@@ -5,7 +5,7 @@ Stateless Server-Client E2E encrypted messanger.
 
 Client - C++ with Boost and CryptoPP libraries.
 
-Server - Python 3.10.6.
+Server - Python 3
 
 **The messanger protocol is stateless and is encrypted end-to-end by:**
 - using RSA encryption for delivering symmetric key.
