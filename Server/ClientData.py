@@ -1,11 +1,11 @@
 # Client Data class represents a client with its username and public key.
 class ClientData:
-    def __init__(self, username, public_key):
+    def __init__(self, username, publicKey):
         self.username = username
-        self.public_key = public_key
+        self.publicKey = publicKey
 
-    def get_public_key(self):
-        return self.public_key
+    def getPublicKey(self):
+        return self.publicKey
 
-    def get_username(self):
+    def getUsername(self):
         return self.username
