@@ -15,7 +15,7 @@
 
 /*
 * @class MessageUClient
-* The main class which is in charge of requesting the server and taking care of server's responses.
+* Contains the program flow and user requests handlers.
 * 
 * Using CryptoPP library for Encryption algorithms.
 * Encryption/Decryption by public and private key refers to RSA.
@@ -29,8 +29,6 @@ namespace MessageUClient
 	static void printInstructions();
 
 	/*
-	* Handles the registeration of a new client to the server.
-	* 
 	* @summary Sets the client a username (which the client input).
 	* Also creating a private key and public key (RSA) for the client.
 	* Sending the server a register request which contains client's username and public key.
@@ -43,8 +41,6 @@ namespace MessageUClient
 	void registerHandlder(Client* client);
 
 	/*
-	* Handles get clients list request from the server.
-	*
 	* @summary Sending the server request to get all server's registered clients.
 	* Receiving success response if the client list received, otherwise server general error.
 	* Saving each new client from the list into the current client's list of contacts (by their UUID).
@@ -56,8 +52,6 @@ namespace MessageUClient
 
 
 	/*
-	* Handles get public key request from the server.
-	* 
 	* @summary Sending the server a request to get other client's public key.
 	* Receiving success response if the client is found and the public key received, otherwise server general error.
 	* Sets the target client's public key in the list of contacts of the current client.
@@ -66,33 +60,18 @@ namespace MessageUClient
 	*/
 	void getPublicKeyHandler(Client* client);
 
+	
 	/*
-	* Handles get (/pulling) waiting messages request from the server.
-	* 
 	* @summary Sending the server a request to get all waiting messages of the current client.
 	* Receiving success response if the waiting messages pulled back successfuly, otherwise server general error.
 	* Prints the messages one by one, after decrypting them.
-	* 
-	* Each message decryption and action depends on its type. (check "Messages.h" for messages' types):
-	* 
-	* ASK_SYM_KEY - ask symmetric key - the sending client requests the receiving client for a symmetric key.
-	* no decryption is needed (no payload, the message type informs it)
-	* 
-	* SEND_SYM_KEY - send symmetric key - the sending client sends a new generated symmetric key.
-	* the symmetric key encrypted by the receiving client's public key.
-	* decryption is done by the private key of the receiving client (current client).
-	* 
-	* SEND_TEXT_MSG - send a text message - the sending client sends a text message to the target client (current client)
-	* the text message encrypted by the symmetric key which both sender and receiver use.
-	* decryption is done by the same symmetric key.
-	* 
+	*
 	* @param client - the current client.
 	*/
 	void getWaitingMessagesHandler(Client* client);
 
+	
 	/*
-	* Handles the send text message request from the server.
-	* 
 	* @summary Sending the server a encrypted text message (by symmetric key) to other client.
 	* Receicing success response if the text message saved in the server successfuly.
 	* The client sends the message to a client in its contacts list, if not exists - prints error.
@@ -102,9 +81,8 @@ namespace MessageUClient
 	*/
 	void sendTextMessagesHandler(Client* client);
 
+	
 	/*
-	* Handles ask for client's symmetric key from the server.
-	*
 	* @summary Sending the server a request for client's symmetric key.
 	* Receiving success response if the message sved in the server successfuly.
 	* The client sends the message to a client in its contacts list, if not exists - prints error.
@@ -113,9 +91,8 @@ namespace MessageUClient
 	*/
 	void askForSymmetricKeyHandler(Client* client);
 
+	
 	/*
-	* Handles send symmetric key to client request from the server.
-	*
 	* @summary Sending the server a new generated symmetric key for target client.
 	* Receiving success response if the message sved in the server successfuly.
 	* The client creates new symmetric key and sets it to the target client's data in the contacts list of the current client.
@@ -126,6 +103,7 @@ namespace MessageUClient
 	*/
 	void sendSymmetricKeyHandler(Client* client);
 
+	
 	/*
 	* @summary Sending the server a encrypted text file (by symmetric key) to other client.
 	* Receicing success response if the text file saved in the server successfuly.
@@ -135,6 +113,7 @@ namespace MessageUClient
 	*/
 	void sendTextFileHandler(Client* client);
 
+	
 	/*
 	* The main function which controls the flow of the program.
 	* Gets the user command input and preforms the matching handler.
