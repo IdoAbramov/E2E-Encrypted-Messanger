@@ -29,6 +29,9 @@ private:
 	Types::username_t _username;
 	std::string _privateKey;
 	bool _registerStatus;
+	// Note - should have replaced it to unordered_map for lower complexity of insert and find,
+	// but it forces me to create hash functions for username_t and uuid_t (both fixed size arrays),
+	// so I passed it for now.
 	std::map<Types::username_t, Types::uuid_t> _clientsList;
 	std::map<Types::uuid_t, Contact*> _contactsList;
 
