@@ -4,8 +4,15 @@ class ClientData:
         self.username = username
         self.publicKey = publicKey
 
-    def getPublicKey(self):
-        return self.publicKey
-
     def getUsername(self):
         return self.username
+    
+    def setUsername(self, uname):
+        self.username = uname;
+
+    def getPublicKey(self):
+        return self.publicKey
+    
+    def setPublicKey(self, pubkey):
+        self.publicKey = pubkey;
+
