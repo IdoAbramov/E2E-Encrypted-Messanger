@@ -20,19 +20,17 @@ def startReceive():
             print("Error - lost connection with the client.")
             clientSocket.close()
 
-if __name__ == '__main__':
-    """
-    Gets the port from the server port file and open a socket to accept requests from clients.
-    """
-
+            
+def getPortFromFile(fileFullPath):
+    
     # Checks if the files of server port info exists.
-    if not os.path.isfile(PORT_INFO_FILE_PATH):
+    if not os.path.isfile(fileFullPath):
         print("The port info file couldn't be found. check if exist and retry.")
         return
 
     # Open the server port info for reading.
     try:
-        portInfoFile = open(PORT_INFO_FILE_PATH,"r")
+        portInfoFile = open(fileFullPath,"r")
         fileConent = portInfoFile.read().split()
     except:
         print("Server's port file cannot open. please check the file and retry.")
@@ -49,21 +47,25 @@ if __name__ == '__main__':
         return
 
     # Gets the port from the file content.
-    serverPort = int(fileConent[0])
+    port = int(fileConent[0])
 
     # Validate the port number is a valid one.
-    if not (serverPort > 0 and serverPort < MAX_PORT_VALUE):
+    if not (port > 0 and port < MAX_PORT_VALUE):
         print("The port value is invalid. please check if valid and try again.")
         return
 
     portInfoFile.close()
+    return port
+    
+if __name__ == '__main__':
 
+    serverPort = getPortFromFile(PORT_INFO_FILE_PATH)
     # Creates the server socket and waiting for clients' communications.
     try:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((HOST, serverPort))
         server.listen()
         print("Server is up !")
-        startReceive()
+        startReceive() # creates a thread for each communication
     except:
         print("Server failed. please try again.")
