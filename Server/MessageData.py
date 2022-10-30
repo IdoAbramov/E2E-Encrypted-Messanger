@@ -9,6 +9,8 @@ class MessageData:
         self.type = type
         self.content = content
         self.size = size
+        
+ # Only getters, since the message details are constant once it is created.
 
     def getMessageID(self):
         return self.msgID
