@@ -20,7 +20,13 @@ def startReceive():
             print("Error - lost connection with the client.")
             clientSocket.close()
 
-            
+def startServer(port):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind((HOST, port))
+        server.listen()
+        print("Server is up !")
+        return server
+   
 def getPortFromFile(fileFullPath):
     
     # Checks if the files of server port info exists.
@@ -60,12 +66,9 @@ def getPortFromFile(fileFullPath):
 if __name__ == '__main__':
 
     serverPort = getPortFromFile(PORT_INFO_FILE_PATH)
-    # Creates the server socket and waiting for clients' communications.
+    # Creates the server socket and waiting for clients' communications. creates a thread for each client.
     try:
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind((HOST, serverPort))
-        server.listen()
-        print("Server is up !")
-        startReceive() # creates a thread for each communication
+        server = startServer(port)
+        startReceive()
     except:
         print("Server failed. please try again.")
