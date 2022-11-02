@@ -5,7 +5,6 @@ from Definitions import *
 from ClientHandler import *
 
 def startReceive():
-    
     clientsHandler = ClientsHandler()
     
     # Starts to receive connections from clients. 
@@ -28,7 +27,6 @@ def startServer(port):
         return server
    
 def getPortFromFile(fileFullPath):
-    
     # Checks if the files of server port info exists.
     if not os.path.isfile(fileFullPath):
         print("The port info file couldn't be found. check if exist and retry.")
@@ -64,7 +62,6 @@ def getPortFromFile(fileFullPath):
     return port
     
 if __name__ == '__main__':
-
     serverPort = getPortFromFile(PORT_INFO_FILE_PATH)
     # Creates the server socket and waiting for clients' communications. creates a thread for each client.
     try:
