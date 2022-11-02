@@ -12,7 +12,6 @@ Contact::Contact(const Types::username_t& username) {
 
 Contact::~Contact() { }
 
-
 Types::username_t Contact::getUsername() {
 	return this->_username;
 }
