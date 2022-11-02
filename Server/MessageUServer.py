@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # Creates the server socket and waiting for clients' communications. creates a thread for each client.
     try:
         server = startServer(serverPort)
+        startReceive()
     except:
         print("Server failed. please try again.")
         
-    startReceive()
