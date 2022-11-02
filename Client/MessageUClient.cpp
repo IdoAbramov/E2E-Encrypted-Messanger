@@ -850,18 +850,12 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 					 Message::MessageTypes::SEND_FILE,
 					 encryptedFileData.length() };
 
-	std::vector<uint8_t> msgHeaderBuffer(msgHeader.buffer.begin(),
-					     msgHeader.buffer.end());
-
-	std::vector<uint8_t> msgContentBuffer(encryptedFileData.begin(),
-					      encryptedFileData.end());
-
-	std::vector<uint8_t> reqPayloadBuffer(msgHeaderBuffer.begin(),
-					      msgHeaderBuffer.end());
+	std::vector<uint8_t> reqPayloadBuffer(msgHeader.buffer.begin(),
+					      msgHeader.buffer.end());
 
 	reqPayloadBuffer.insert(reqPayloadBuffer.end(),
-		                msgContentBuffer.begin(),
-		                msgContentBuffer.end());
+		                encryptedFileData.begin(),
+		                encryptedFileData.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
