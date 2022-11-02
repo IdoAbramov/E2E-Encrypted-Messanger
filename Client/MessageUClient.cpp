@@ -366,8 +366,8 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
 
 			// Clears the data from the memory.
 			std::fill(decryptedMessage.begin(), 
-				      decryptedMessage.end(), 
-				      0);
+				  decryptedMessage.end(), 
+				  0);
 			} 
 
 		else if (messageRecordHeader.msgHeaderData.messageType == Message::MessageTypes::SEND_TEXT_MSG) {
@@ -538,19 +538,12 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 					 Message::MessageTypes::SEND_TEXT_MSG,
 					 encryptedMessageContent.length()};
 
-
-	std::vector<uint8_t> msgHeaderBuffer(msgHeader.buffer.begin(), 
+	std::vector<uint8_t> reqPayloadBuffer(msgHeader.buffer.begin(), 
 					     msgHeader.buffer.end());
 
-	std::vector<uint8_t> msgContentBuffer(encryptedMessageContent.begin(), 
-					      encryptedMessageContent.end());
-
-	std::vector<uint8_t> reqPayloadBuffer(msgHeaderBuffer.begin(), 
-					     msgHeaderBuffer.end());
-
 	reqPayloadBuffer.insert(reqPayloadBuffer.end(), 
-				msgContentBuffer.begin(), 
-				msgContentBuffer.end());
+				encryptedMessageContent.begin(), 
+				encryptedMessageContent.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
@@ -709,18 +702,12 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 					 Message::MessageTypes::SEND_SYM_KEY,
 					 encryptedSymKey.length()};
 
-	std::vector<uint8_t> msgHeaderBuffer(msgHeader.buffer.begin(), 
-		                             msgHeader.buffer.end());
-
-	std::vector<uint8_t> msgContentBuffer(encryptedSymKey.begin(), 
-		                              encryptedSymKey.end());
-
-	std::vector<uint8_t> reqPayloadBuffer(msgHeaderBuffer.begin(), 
-		                              msgHeaderBuffer.end());
+	std::vector<uint8_t> reqPayloadBuffer(msgHeader.buffer.begin(), 
+		                              msgHeader.buffer.end());
 
 	reqPayloadBuffer.insert(reqPayloadBuffer.end(), 
-		                msgContentBuffer.begin(), 
-		                msgContentBuffer.end());
+		                encryptedSymKey.begin(), 
+		                encryptedSymKey.end());
 
 	std::vector<uint8_t> respHeaderBuffer;
 	std::vector<uint8_t> respPayloadBuffer;
@@ -814,7 +801,6 @@ void MessageUClient::sendTextFileHandler(Client* client) {
 	try {
 		fileToRead.open(filePath, std::ios::binary);
 		fileToRead.seekg(0, std::ios::end);
-
 		fileData.reserve(fileToRead.tellg());
 		fileToRead.seekg(0, std::ios::beg);
 
