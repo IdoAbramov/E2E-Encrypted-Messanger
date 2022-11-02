@@ -65,7 +65,7 @@ if __name__ == '__main__':
     serverPort = getPortFromFile(PORT_INFO_FILE_PATH)
     # Creates the server socket and waiting for clients' communications. creates a thread for each client.
     try:
-        server = startServer(port)
+        server = startServer(serverPort)
         startReceive()
     except:
         print("Server failed. please try again.")
