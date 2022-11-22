@@ -21,7 +21,12 @@ void ServerCommunication::sendAndReceive(const std::vector<uint8_t>& requestHead
 		serverInfoFile.close();
 
 		int pos = serverInfo.find_first_of(':');
-
+		if (pos == std::string::npos) {
+			std::cout << "File while trying to get server info...\n";
+			std::cout << "Please insure \"server.info\" file contains IP:PORT .\n";
+			return;
+		}
+		
 		serverIP = serverInfo.substr(0, pos);
 		serverPort = serverInfo.substr(pos + 1);
 	}
