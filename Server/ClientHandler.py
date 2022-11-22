@@ -13,7 +13,7 @@ class ClientsHandler:
     def __init__(self):
         self.sem = threading.Semaphore()
 
-    def sync(func):
+    def lock(func):
         def inner(self, *args, **kwargs):
             self.sem.acquire()
             try:
@@ -25,13 +25,13 @@ class ClientsHandler:
         return inner
 
     # Adds new client into the server's clients list.
-    @sync
+    @lock
     def addNewClient(self, newClient:ClientData, clientUUID:UUID):
         if clientUUID not in self.clientsList:
             self.clientsList[clientUUID] = newClient; # clientUUID is the key. newClient holds username + public key.
 
     # Returns true if the username is already registered to the server. returns false otherwise.
-    @sync
+    @lock
     def isUsernameExistsAlready(self, username):
         for uuid in self.clientsList:
             if self.clientsList[uuid].username == username:
@@ -39,12 +39,12 @@ class ClientsHandler:
         return False
 
     # Returns the client username by its UUID from the server's clients list.
-    @sync
+    @lock
     def getClientUsernameByUUID(self, clientUUID:UUID):
         return self.clientsList[clientUUID].username
 
     # Adds new message received from a client into the server's messages list.
-    @sync
+    @lock
     def addMessageToList(self, newMessage:MessageData):
         self.messages[newMessage.getMessageID()] = newMessage # the key for dict is destination client UUID.
 
