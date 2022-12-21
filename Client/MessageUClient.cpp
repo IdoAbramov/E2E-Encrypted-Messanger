@@ -4,7 +4,7 @@ void MessageUClient::printInstructions() {
 	std::cout << "Welcome to MessageU - an E2E encrypted messanger.\n";
 }
 
-void MessageUClient::registerHandlder(Client* client) {
+void MessageUClient::registerHandlder(Client& client) {
 	
 	std::string uname;
 	std::cout << "Please enter your username:\n";
@@ -111,7 +111,7 @@ void MessageUClient::registerHandlder(Client* client) {
 		  0);
 }
 
-void MessageUClient::getClientsListHandler(Client* client) {
+void MessageUClient::getClientsListHandler(Client& client) {
 	
 	Request::RequestHeader reqHeader{client->getUUID(),
 					 Constants::VERSION,
@@ -189,7 +189,7 @@ void MessageUClient::getClientsListHandler(Client* client) {
 		  0);
 }
 
-void MessageUClient::getPublicKeyHandler(Client* client) {
+void MessageUClient::getPublicKeyHandler(Client& client) {
 
 	std::string uname;
 	std::cout << "Please enter the username which you ask for its public key:\n";
@@ -263,7 +263,7 @@ void MessageUClient::getPublicKeyHandler(Client* client) {
 	std::cout << "Public key of user \'" << uname << "\' received successfuly.\n";
 }
 
-void MessageUClient::getWaitingMessagesHandler(Client* client)  {
+void MessageUClient::getWaitingMessagesHandler(Client& client)  {
 
 	Request::RequestHeader reqHeader{client->getUUID(),
 					 Constants::VERSION,
@@ -478,7 +478,7 @@ void MessageUClient::getWaitingMessagesHandler(Client* client)  {
               	  0);
 }
 
-void MessageUClient::sendTextMessagesHandler(Client* client) {
+void MessageUClient::sendTextMessagesHandler(Client& client) {
 
 	std::string uname;
 	std::cout << "Please enter target username:\n";
@@ -589,7 +589,7 @@ void MessageUClient::sendTextMessagesHandler(Client* client) {
 		  0);
 }
 
-void MessageUClient::askForSymmetricKeyHandler(Client* client) {
+void MessageUClient::askForSymmetricKeyHandler(Client& client) {
 
 	std::string uname;
 	std::cout << "Please enter destination username:\n";
@@ -649,7 +649,7 @@ void MessageUClient::askForSymmetricKeyHandler(Client* client) {
 	std::cout << "Request for symmetric key delivered successfuly.\n";
 }
 
-void MessageUClient::sendSymmetricKeyHandler(Client* client) {
+void MessageUClient::sendSymmetricKeyHandler(Client& client) {
 
 	std::string uname;
 	std::cout << "Please enter destination username:\n";
@@ -750,7 +750,7 @@ void MessageUClient::sendSymmetricKeyHandler(Client* client) {
 		  0);
 }
 
-void MessageUClient::sendTextFileHandler(Client* client) {
+void MessageUClient::sendTextFileHandler(Client& client) {
 
 	std::string uname;
 	std::cout << "Please enter target username:\n";
