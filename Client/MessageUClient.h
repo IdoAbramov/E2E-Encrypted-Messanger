@@ -38,7 +38,7 @@ namespace MessageUClient
 	* 
 	* @param client - the current client.
 	*/
-	void registerHandlder(Client* client);
+	void registerHandlder(Client& client);
 
 	/*
 	* @summary Sending the server request to get all server's registered clients.
@@ -48,7 +48,7 @@ namespace MessageUClient
 	* 
 	* @param client - the current client.
 	*/
-	void getClientsListHandler(Client* client);
+	void getClientsListHandler(Client& client);
 
 
 	/*
@@ -58,7 +58,7 @@ namespace MessageUClient
 	* 
 	* @param client - the current client.
 	*/
-	void getPublicKeyHandler(Client* client);
+	void getPublicKeyHandler(Client& client);
 
 	
 	/*
@@ -68,7 +68,7 @@ namespace MessageUClient
 	*
 	* @param client - the current client.
 	*/
-	void getWaitingMessagesHandler(Client* client);
+	void getWaitingMessagesHandler(Client& client);
 
 	
 	/*
@@ -79,7 +79,7 @@ namespace MessageUClient
 	* 
 	* @param client - the current client.
 	*/
-	void sendTextMessagesHandler(Client* client);
+	void sendTextMessagesHandler(Client& client);
 
 	
 	/*
@@ -89,7 +89,7 @@ namespace MessageUClient
 	* 
 	* @param client - the current client.
 	*/
-	void askForSymmetricKeyHandler(Client* client);
+	void askForSymmetricKeyHandler(Client& client);
 
 	
 	/*
@@ -101,7 +101,7 @@ namespace MessageUClient
 	* 
 	* @param client - the current client.
 	*/
-	void sendSymmetricKeyHandler(Client* client);
+	void sendSymmetricKeyHandler(Client& client);
 
 	
 	/*
@@ -111,7 +111,7 @@ namespace MessageUClient
 	* File is encrypted by the symmetric key of the target client, if there is no symmetric key - prints error.
 	* The file saved in the user's current working directory with a random name.
 	*/
-	void sendTextFileHandler(Client* client);
+	void sendTextFileHandler(Client& client);
 
 	
 	/*
