@@ -31,3 +31,6 @@ Download the latest CryptoPP library:
 Finally, compile the C++ client.
 
 **For python, just hit Run.**
+
+TO-DO: 
+1. Add DB for the server users and messages.
